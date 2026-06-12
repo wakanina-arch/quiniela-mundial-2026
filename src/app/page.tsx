@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Trophy, Users, ArrowRight, Star, LayoutDashboard, MapPin, Tv, ChevronDown, ChevronUp } from "lucide-react"
+import { Trophy, Users, ArrowRight, Star, LayoutDashboard, MapPin, Tv, ChevronDown, ChevronUp, Calendar, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Equipo {
@@ -25,9 +25,13 @@ interface PartidoReal {
   golesLocal: number
   golesVisitante: number
   jugado: boolean
+  fecha: string
+  hora: string
+  estadio: string
+  ciudad: string
+  pais: string
 }
 
-// Banderas oficiales
 const BANDERAS: Record<string, string> = {
   "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Chequia": "🇨🇿", "Sudáfrica": "🇿🇦",
   "Canadá": "🇨🇦", "Bosnia y H.": "🇧🇦", "Catar": "🇶🇦", "Suiza": "🇨🇭",
@@ -42,6 +46,35 @@ const BANDERAS: Record<string, string> = {
   "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
   "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦"
 }
+
+// PRÓXIMOS PARTIDOS - SOLO SEDES MÉXICO, EE.UU. Y CANADÁ
+const PROXIMOS_PARTIDOS: PartidoReal[] = [
+  {
+    id: 1, grupo: "A", local: "México", visitante: "Corea del Sur",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "12/06/2026", hora: "18:00", estadio: "Estadio Azteca", ciudad: "Ciudad de México", pais: "México"
+  },
+  {
+    id: 2, grupo: "B", local: "Canadá", visitante: "Bosnia y H.",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "12/06/2026", hora: "21:00", estadio: "BMO Field", ciudad: "Toronto", pais: "Canadá"
+  },
+  {
+    id: 3, grupo: "D", local: "Estados Unidos", visitante: "Paraguay",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "12/06/2026", hora: "15:00", estadio: "MetLife Stadium", ciudad: "East Rutherford", pais: "EE.UU."
+  },
+  {
+    id: 4, grupo: "C", local: "Brasil", visitante: "Marruecos",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "13/06/2026", hora: "16:00", estadio: "Rose Bowl", ciudad: "Los Ángeles", pais: "EE.UU."
+  },
+  {
+    id: 5, grupo: "E", local: "Alemania", visitante: "Ecuador",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "13/06/2026", hora: "20:00", estadio: "Estadio BBVA", ciudad: "Monterrey", pais: "México"
+  }
+]
 
 const GRUPOS_EQUIPOS = [
   { id: "A", equipos: ["México", "Corea del Sur", "Chequia", "Sudáfrica"] },
@@ -58,10 +91,9 @@ const GRUPOS_EQUIPOS = [
   { id: "L", equipos: ["Inglaterra", "Croacia", "Ghana", "Panamá"] }
 ]
 
-// Generar TODOS los partidos de fase de grupos (72 partidos) EN CERO
 const generarPartidosEnCero = (): PartidoReal[] => {
   const partidos: PartidoReal[] = []
-  let id = 1
+  let id = 100
 
   GRUPOS_EQUIPOS.forEach(grupo => {
     const equipos = grupo.equipos
@@ -74,7 +106,12 @@ const generarPartidosEnCero = (): PartidoReal[] => {
           visitante: equipos[j],
           golesLocal: 0,
           golesVisitante: 0,
-          jugado: false
+          jugado: false,
+          fecha: "Por definir",
+          hora: "--:--",
+          estadio: "Por definir",
+          ciudad: "Por definir",
+          pais: "Por definir"
         })
       }
     }
@@ -90,7 +127,6 @@ export default function Home() {
   const [partidosReales, setPartidosReales] = useState<PartidoReal[]>([])
   const [cargando, setCargando] = useState(true)
 
-  // Inicializar o cargar datos guardados
   useEffect(() => {
     const saved = localStorage.getItem("resultadosReales")
     if (saved) {
@@ -104,7 +140,6 @@ export default function Home() {
     setCargando(false)
   }, [])
 
-  // Calcular tabla de posiciones cuando cambian los resultados
   useEffect(() => {
     if (partidosReales.length > 0) {
       calcularTablas()
@@ -177,14 +212,13 @@ export default function Home() {
   if (cargando) {
     return (
       <div className="flex min-h-screen bg-slate-950 items-center justify-center">
-        <div className="text-yellow-500 text-xl">Cargando tabla de posiciones...</div>
+        <div className="text-yellow-500 text-xl">Cargando...</div>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-50">
-      {/* Header */}
       <header className="px-4 lg:px-6 h-16 flex items-center border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <Link className="flex items-center justify-center gap-2 font-bold text-xl tracking-tight" href="/">
           <Trophy className="h-6 w-6 text-yellow-500 animate-pulse" />
@@ -210,7 +244,6 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Hero Section */}
         <section className="w-full py-12 bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800 text-center">
           <div className="container px-4 mx-auto max-w-4xl">
             <h1 className="text-4xl font-black tracking-tight sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-white to-sky-400">
@@ -229,39 +262,47 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECCIÓN: PARTIDOS PARA HOY */}
         <section className="w-full py-10 bg-slate-950 px-4 border-b border-slate-900">
-          <div className="max-w-xl mx-auto">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-sky-400 flex items-center gap-2 mb-6 justify-center sm:justify-start">
-              <Tv className="h-4 w-4" /> PARTIDOS PARA HOY
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-sky-400 flex items-center gap-2 mb-6">
+              <Tv className="h-4 w-4" /> PRÓXIMOS PARTIDOS
             </h2>
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center sm:text-left">
-              Próximos partidos - Fase de Grupos
-            </div>
-
-            <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-2xl mb-6">
-              <div className="flex items-center justify-between p-5 bg-slate-950/40 border-b border-slate-800 text-center font-bold text-base sm:text-lg">
-                <div className="flex-1 text-right pr-4 text-slate-100 font-extrabold flex items-center justify-end gap-2">
-                  <span>🇲🇽</span>
-                  <span>México</span>
+            
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {PROXIMOS_PARTIDOS.map((partido) => (
+                <div key={partido.id} className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-lg">
+                  <div className="p-4 bg-slate-950/40 border-b border-slate-800">
+                    <div className="text-center font-bold text-sky-400 text-sm">
+                      Grupo {partido.grupo}
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between gap-3 text-center font-bold text-base">
+                      <div className="flex-1 text-right">
+                        <span className="text-lg mr-1">{BANDERAS[partido.local] || "🏳️"}</span>
+                        <span className="text-slate-100">{partido.local}</span>
+                      </div>
+                      <div className="text-yellow-500 font-black text-xs px-2 py-1 bg-slate-800 rounded">VS</div>
+                      <div className="flex-1 text-left">
+                        <span className="text-lg mr-1">{BANDERAS[partido.visitante] || "🏳️"}</span>
+                        <span className="text-slate-100">{partido.visitante}</span>
+                      </div>
+                    </div>
+                    <div className="mt-3 text-center text-xs text-slate-400 flex flex-wrap justify-center gap-2">
+                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {partido.fecha}</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora}</span>
+                    </div>
+                    <div className="mt-2 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {partido.estadio}, {partido.ciudad} ({partido.pais})
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-center px-4 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-yellow-500 font-black text-xs uppercase tracking-widest shadow-inner">
-                  VS
-                </div>
-                <div className="flex-1 text-left pl-4 text-slate-100 font-extrabold flex items-center justify-start gap-2">
-                  <span>🇰🇷</span>
-                  <span>Corea del Sur</span>
-                </div>
-              </div>
-              <div className="px-5 py-3 bg-slate-900/50 flex items-center gap-2 text-xs text-slate-400 font-semibold">
-                <MapPin className="h-3.5 w-3.5 text-sky-500 shrink-0" />
-                <span>Estadio Azteca, México (Fase de Grupos - Grupo A)</span>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* SECCIÓN: TABLAS DE POSICIONES */}
         <section className="w-full py-10 bg-slate-950 px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <Button 
@@ -277,7 +318,7 @@ export default function Home() {
             </Button>
 
             {mostrarPosiciones && (
-              <div className="mt-6 space-y-3 text-left animate-in fade-in duration-200">
+              <div className="mt-6 space-y-3 text-left">
                 {grupos.map((grupo) => (
                   <div key={grupo.id} className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
                     <button 
