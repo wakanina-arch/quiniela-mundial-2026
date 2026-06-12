@@ -1,24 +1,19 @@
-import type { Metadata } from "next";
-import "./globals.css"; // Única importación correcta de estilos globales
-import AuthProvider from "@/components/AuthProvider";
+import type { Metadata } from "next"
+import "./globals.css"
 
 export const metadata: Metadata = {
   title: "Quiniela Mundialista 2026",
-  description: "Plataforma escalable de pronósticos para el mundial",
-};
+  description: "La mejor quiniela para el Mundial 2026",
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="es">
-      <body className="antialiased">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
-  );
+  )
 }

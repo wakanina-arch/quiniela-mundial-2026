@@ -1,19 +1,31 @@
-// Reemplaza tu modelo User anterior por este:
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  numeroJugador Int       @unique @default(autoincrement())
   points        Int       @default(0)
+  golesAcertados Int      @default(0)
+  haCobrado     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
   accounts      Account[]
   sessions      Session[]
   predictions   Prediction[]
   bonus         BonusPrediction?
-  createdAt     DateTime  @default(now())
+  payments      Payment[]
 }
 
-// Añade estos tres modelos obligatorios para NextAuth:
+// Modelos de NextAuth
 model Account {
   id                 String  @id @default(cuid())
   userId             String
@@ -47,4 +59,57 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// MODELOS DE LA QUINIELA
+model Prediction {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  partidoId        String
+  tipo             String   // "RESULTADO" | "MARCADOR" | "FINALISTA"
+  seleccion        String   // "L", "E", "V" o "2-1" o "Brasil-Argentina"
+  golesLocal       Int?
+  golesVisita      Int?
+  resultado        String?  // "L", "E", "V"
+  costo            Float    @default(0.50)
+  aceptada         Boolean  @default(false)
+  pagada           Boolean  @default(false)
+  paymentId        String?
+  acierto          Boolean? @default(false)
+  puntosObtenidos  Int      @default(0)
+  createdAt        DateTime @default(now())
+}
+
+model BonusPrediction {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campeon     String
+  subcampeon  String
+  aceptada    Boolean  @default(false)
+  pagada      Boolean  @default(false)
+  paymentId   String?
+  acierto     Boolean? @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  paypalOrderId String   @unique
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monto         Float
+  moneda        String   @default("EUR")
+  status        String   // "PENDING", "COMPLETED", "FAILED"
+  predictions   Prediction[]
+  bonus         BonusPrediction?
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+}
+
+model Acumulado {
+  id          String   @id @default(cuid())
+  total       Float    @default(0)
+  actualizado DateTime @default(now())
 }
