@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Trophy, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, ArrowLeft, X, CreditCard, UserPlus, RefreshCw } from "lucide-react"
+import { Trophy, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, ArrowLeft, X, CreditCard, UserPlus, RefreshCw, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -37,8 +37,8 @@ interface ApuestaFinalista {
   aceptada: boolean
 }
 
-// PARTIDOS DEL MUNDIAL
-const PARTIDOS: Partido[] = [
+// TODOS LOS PARTIDOS DE LA RONDA (para cargar dinámicamente)
+const TODOS_LOS_PARTIDOS: Partido[] = [
   {
     id: "1", local: "Catar", visitante: "Suiza",
     banderaLocal: "🇶🇦", banderaVisitante: "🇨🇭",
@@ -68,8 +68,23 @@ const PARTIDOS: Partido[] = [
     banderaLocal: "🇩🇪", banderaVisitante: "🇪🇨",
     fecha: "2026-06-14", hora: "12:00", estadio: "NRG Stadium", ciudad: "Houston", pais: "EEUU", grupo: "E",
     timestamp: new Date(2026, 5, 14, 12, 0).getTime()
+  },
+  {
+    id: "6", local: "Países Bajos", visitante: "Japón",
+    banderaLocal: "🇳🇱", banderaVisitante: "🇯🇵",
+    fecha: "2026-06-14", hora: "15:00", estadio: "AT&T Stadium", ciudad: "Dallas", pais: "EEUU", grupo: "F",
+    timestamp: new Date(2026, 5, 14, 15, 0).getTime()
+  },
+  {
+    id: "7", local: "Costa de Marfil", visitante: "Ecuador",
+    banderaLocal: "🇨🇮", banderaVisitante: "🇪🇨",
+    fecha: "2026-06-14", hora: "19:00", estadio: "Lincoln Financial Field", ciudad: "Philadelphia", pais: "EEUU", grupo: "E",
+    timestamp: new Date(2026, 5, 14, 19, 0).getTime()
   }
 ]
+
+// Partidos iniciales mostrados (los de hoy)
+const PARTIDOS_INICIALES = TODOS_LOS_PARTIDOS.slice(0, 3)
 
 const esPartidoHoy = (timestamp: number): boolean => {
   const hoy = new Date()
@@ -88,6 +103,8 @@ export default function QuinielaPage() {
   const [emailRegistro, setEmailRegistro] = useState("")
   const [errorRegistro, setErrorRegistro] = useState("")
   const [actualizando, setActualizando] = useState(false)
+  const [partidosVisibles, setPartidosVisibles] = useState<Partido[]>(PARTIDOS_INICIALES)
+  const [cargandoMas, setCargandoMas] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem("quiniela_apuestas_v2")
@@ -97,7 +114,7 @@ export default function QuinielaPage() {
       setApuestaFinalista(data.finalista || { primero: "", segundo: "", aceptada: false })
     } else {
       const inicial: Record<string, Apuesta> = {}
-      PARTIDOS.forEach(p => { 
+      TODOS_LOS_PARTIDOS.forEach(p => { 
         inicial[p.id] = { L: false, E: false, V: false, golesLocal: "", golesVisita: "", aceptada: false }
       })
       setApuestas(inicial)
@@ -121,9 +138,17 @@ export default function QuinielaPage() {
     }, 500)
   }
 
+  const cargarMasPartidos = () => {
+    setCargandoMas(true)
+    setTimeout(() => {
+      setPartidosVisibles(TODOS_LOS_PARTIDOS)
+      setCargandoMas(false)
+    }, 500)
+  }
+
   const estamparSello = (partidoId: string, tipo: "L" | "E" | "V") => {
     const apuesta = apuestas[partidoId]
-    const partido = PARTIDOS.find(p => p.id === partidoId)!
+    const partido = TODOS_LOS_PARTIDOS.find(p => p.id === partidoId)!
     const minutosRestantes = (partido.timestamp - Date.now()) / (1000 * 60)
     const bloqueado = minutosRestantes <= 20
     
@@ -149,15 +174,15 @@ export default function QuinielaPage() {
 
   const getTipoApuesta = (apuesta: Apuesta) => {
     const count = [apuesta.L, apuesta.E, apuesta.V].filter(Boolean).length
-    if (count === 0) return { texto: "", icono: "", costo: 0, showMessage: false }
-    if (count === 1) return { texto: "Simple", icono: "🔴", costo: 0.50, showMessage: true }
-    if (count === 2) return { texto: "Doble", icono: "🟡", costo: 1.00, showMessage: true }
-    return { texto: "Triple", icono: "🔴", costo: 1.50, showMessage: true }
+    if (count === 0) return { texto: "", icono: "", costo: 0 }
+    if (count === 1) return { texto: "Simple", icono: "🔴", costo: 0.50 }
+    if (count === 2) return { texto: "Doble", icono: "🟡", costo: 1.00 }
+    return { texto: "Triple", icono: "🔴", costo: 1.50 }
   }
 
   const handleGoles = (partidoId: string, campo: "golesLocal" | "golesVisita", valor: string) => {
     const apuesta = apuestas[partidoId]
-    const partido = PARTIDOS.find(p => p.id === partidoId)!
+    const partido = TODOS_LOS_PARTIDOS.find(p => p.id === partidoId)!
     const minutosRestantes = (partido.timestamp - Date.now()) / (1000 * 60)
     const bloqueado = minutosRestantes <= 20
     
@@ -171,11 +196,10 @@ export default function QuinielaPage() {
     guardarLocal()
   }
 
-  const aceptarApuesta = (partidoId: string) => {
+  const aceptarApuestaResultado = (partidoId: string) => {
     const apuesta = apuestas[partidoId]
     const seleccionadas = [apuesta?.L, apuesta?.E, apuesta?.V].filter(Boolean).length
-    const tieneGoles = apuesta?.golesLocal !== "" || apuesta?.golesVisita !== ""
-    const partido = PARTIDOS.find(p => p.id === partidoId)!
+    const partido = TODOS_LOS_PARTIDOS.find(p => p.id === partidoId)!
     const minutosRestantes = (partido.timestamp - Date.now()) / (1000 * 60)
     const bloqueado = minutosRestantes <= 20
     
@@ -184,7 +208,7 @@ export default function QuinielaPage() {
       return
     }
     
-    if (seleccionadas === 0 && !tieneGoles) {
+    if (seleccionadas === 0) {
       alert("⚠️ Debes seleccionar al menos una opción")
       return
     }
@@ -193,12 +217,35 @@ export default function QuinielaPage() {
       ...prev, 
       [partidoId]: { ...prev[partidoId], aceptada: true } 
     }))
+    guardarLocal()
+  }
+
+  const aceptarApuestaMarcador = (partidoId: string) => {
+    const apuesta = apuestas[partidoId]
+    const tieneGoles = apuesta?.golesLocal !== "" || apuesta?.golesVisita !== ""
+    const partido = TODOS_LOS_PARTIDOS.find(p => p.id === partidoId)!
+    const minutosRestantes = (partido.timestamp - Date.now()) / (1000 * 60)
+    const bloqueado = minutosRestantes <= 20
     
+    if (bloqueado) {
+      alert("⏰ No se puede aceptar: partido cerrado")
+      return
+    }
+    
+    if (!tieneGoles) {
+      alert("⚠️ Debes ingresar un marcador")
+      return
+    }
+
+    setApuestas(prev => ({ 
+      ...prev, 
+      [partidoId]: { ...prev[partidoId], aceptada: true } 
+    }))
     guardarLocal()
   }
 
   const editarApuesta = (partidoId: string) => {
-    const partido = PARTIDOS.find(p => p.id === partidoId)!
+    const partido = TODOS_LOS_PARTIDOS.find(p => p.id === partidoId)!
     const minutosRestantes = (partido.timestamp - Date.now()) / (1000 * 60)
     const bloqueado = minutosRestantes <= 20
     
@@ -238,7 +285,6 @@ export default function QuinielaPage() {
     return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
   }
 
-  // Calcular total de apuestas aceptadas
   const calcularTotalApuestas = () => {
     let total = 0
     Object.values(apuestas).forEach(apuesta => {
@@ -299,14 +345,14 @@ export default function QuinielaPage() {
 
   const handlePagar = () => {
     const total = calcularTotalApuestas()
-    alert(`🚀 Preparando pago de ${total.toFixed(2)}€ con PayPal...\n\n(Próximamente: integración completa)`)
+    alert(`🚀 Preparando pago de ${total.toFixed(2)}€ con PayPal...`)
   }
 
   const totalApuestas = calcularTotalApuestas()
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      {/* HEADER con flecha izquierda, título y refresh a la derecha */}
+      {/* HEADER */}
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <Link href="/" className="text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
@@ -315,216 +361,206 @@ export default function QuinielaPage() {
           <Trophy className="h-5 w-5 text-yellow-500" />
           Quiniela de Apuestas
         </h1>
-        <button 
-          onClick={actualizarDatos}
-          disabled={actualizando}
-          className="text-slate-400 hover:text-white transition-colors"
-        >
+        <button onClick={actualizarDatos} disabled={actualizando} className="text-slate-400 hover:text-white transition-colors">
           <RefreshCw className={`h-5 w-5 ${actualizando ? "animate-spin" : ""}`} />
         </button>
       </header>
 
-      {/* Botón Reglas debajo del header */}
-     {/* 🔧 BOTÓN DE APERTURA TOTALMENTE CENTRADO */}
-<div className="flex justify-center w-full px-4 lg:px-6">
-  <Button 
-    onClick={() => setMostrarReglas(true)} 
-    className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold px-4 py-1.5 text-xs rounded-md gap-1.5 shadow-lg transition-all duration-200"
-  >
-    <span className="text-sm">📋</span> Ver Reglamento del Árbitro
-  </Button>
-</div>
-
-{/* 🔧 MODAL FLOTANTE INTEGRADO (OVERLAY COMPLETO) */}
-{mostrarReglas && (
-  <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-    <div className="bg-slate-900 border-2 border-amber-500/40 rounded-xl p-6 shadow-2xl max-w-2xl w-full space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-      
-      {/* Encabezado del Modal */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h2 className="text-sm font-black text-amber-500 uppercase flex items-center gap-1.5 tracking-wider">
-          <Trophy className="h-4 w-4 text-amber-500" /> REGLAMENTO OFICIAL MUNDIAL 2026
-        </h2>
-        <span className="text-[10px] text-slate-500 bg-slate-950 px-2 py-0.5 rounded font-mono font-bold">V2.0</span>
+      {/* Botón Reglas */}
+      <div className="flex justify-center w-full px-4 lg:px-6 py-1">
+        <Button onClick={() => setMostrarReglas(true)} className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold px-4 py-1.5 text-xs rounded-md gap-1.5 shadow-lg">
+          <span className="text-sm">📋</span> Ver Reglamento
+        </Button>
       </div>
 
-      {/* REGLAS EN TARJETAS DE ÁRBITRO */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        {/* TARJETA AMARILLA: SISTEMA DE PUNTOS */}
-        <div className="relative overflow-hidden bg-slate-950/40 border border-slate-800/80 rounded-xl p-4 flex gap-3">
-          <div className="absolute -right-4 -bottom-6 w-20 h-28 bg-amber-500 opacity-5 rounded-lg rotate-12 pointer-events-none" />
-          <div className="w-2.5 h-10 bg-amber-400 rounded-sm shadow-[0_0_10px_rgba(245,158,11,0.4)] shrink-0" />
-          <div className="space-y-2 w-full">
-            <h4 className="text-amber-400 font-extrabold text-xs uppercase tracking-wide">Puntuación (Aciertos)</h4>
-            <div className="text-[11px] text-slate-300 space-y-1">
-              <p><span className="text-amber-400 font-bold font-mono">+5 pts</span> Marcador exacto de goles.</p>
-              <p><span className="text-slate-400 font-bold font-mono">+3 pts</span> Tendencia (1X2) sin goles exactos.</p>
-              <p><span className="text-emerald-400 font-bold font-mono">+10 pts</span> Acertar el Campeón del torneo.</p>
+      {/* Modal Reglas */}
+      {mostrarReglas && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-900 border-2 border-amber-500/40 rounded-xl p-6 shadow-2xl max-w-2xl w-full space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h2 className="text-sm font-black text-amber-500 uppercase flex items-center gap-1.5">
+                <Trophy className="h-4 w-4" /> REGLAMENTO OFICIAL
+              </h2>
+              <button onClick={() => setMostrarReglas(false)} className="text-slate-400 hover:text-white">
+                <X className="h-5 w-5" />
+              </button>
             </div>
-          </div>
-        </div>
-
-        {/* TARJETA ROJA: RESTRICCIONES DE CAMPO */}
-        <div className="relative overflow-hidden bg-slate-950/40 border border-slate-800/80 rounded-xl p-4 flex gap-3">
-          <div className="absolute -right-4 -bottom-6 w-20 h-28 bg-rose-600 opacity-5 rounded-lg rotate-12 pointer-events-none" />
-          <div className="w-2.5 h-10 bg-rose-500 rounded-sm shadow-[0_0_10px_rgba(244,63,94,0.4)] shrink-0" />
-          <div className="space-y-2 w-full">
-            <h4 className="text-rose-400 font-extrabold text-xs uppercase tracking-wide">Reglas de Campo</h4>
-            <div className="text-[11px] text-slate-300 space-y-1 leading-relaxed">
-              <p><span className="text-rose-400 font-bold">Fuera de juego:</span> Bloqueo estricto 20 minutos antes de cada partido.</p>
-              <p><span className="text-slate-400 font-bold">Límite de juego:</span> Máximo 3 opciones por partido.</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* PARÁMETROS TÉCNICOS DE COSTOS Y TABLA DE PREMIOS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
-        
-        {/* Tabla de costos integrados */}
-        <div className="space-y-1.5 bg-slate-950/60 border border-slate-800/60 p-3 rounded-xl">
-          <span className="font-extrabold text-[11px] text-yellow-400 tracking-wide block uppercase">💰 ESTRUCTURA DE COSTOS</span>
-          <div className="space-y-1 text-[11px] text-slate-300">
-            <p className="flex justify-between"><span>• Simple (1 Opción):</span> <span className="font-mono text-slate-400">0.50€</span></p>
-            <p className="flex justify-between"><span>• Doble (2 Opciones):</span> <span className="font-mono text-slate-400">1.00€</span></p>
-            <p className="flex justify-between"><span>• Triple (3 Opciones):</span> <span className="font-mono text-slate-400">1.50€</span></p>
-            <p className="flex justify-between"><span>• Marcador Exacto:</span> <span className="font-mono text-slate-400">0.50€</span></p>
-            <p className="flex justify-between border-t border-slate-800/80 pt-1 mt-1 font-semibold">
-              <span>• Podio Finalistas:</span> <span className="font-mono text-slate-400">1.00€</span>
-            </p>
-          </div>
-          <p className="text-[10px] text-amber-500 font-bold bg-amber-500/5 p-1 rounded border border-amber-500/10 text-center mt-2">
-            Máximo total combinable por partido: 2.00€
-          </p>
-        </div>
-
-        {/* Criterios de Premiación */}
-        <div className="space-y-1.5 bg-slate-950/60 border border-slate-800/60 p-3 rounded-xl flex flex-col justify-between">
-          <div>
-            <span className="font-extrabold text-[11px] text-emerald-400 tracking-wide block uppercase">🏆 REPARTO DEL POZO (33% c/u)</span>
-            <div className="space-y-2 mt-1.5 text-[11px]">
-              <p className="leading-tight"><span className="text-emerald-400 font-bold">1er Puesto:</span> Mayor puntuación acumulada en la tabla general.</p>
-              <p className="leading-tight"><span className="text-emerald-400 font-bold">2do Puesto:</span> Mayor cantidad de goles exactos acertados.</p>
-              <p className="leading-tight"><span className="text-emerald-400 font-bold">3er Puesto:</span> Combinación exacta de Campeón y Subcampeón.</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Botón de cierre */}
-      <Button 
-        onClick={() => setMostrarReglas(false)} 
-        className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black tracking-wider text-xs h-9 uppercase shadow-md shadow-amber-500/10"
-      >
-        Entendido, Volver al Campo
-      </Button>
-
-    </div>
-  </div>
-)}
-
-{/* Inicio del contenedor siguiente */}
-<div className="p-[0.75rem] md:p-[1.5rem] pb-28">
-  <div className="max-w-4xl mx-auto space-y-[0.75rem]">
-
-
-          {/* Modal Resumen de Apuestas - Maradona # 10 */}
-          {mostrarModalResumen && (
-            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 rounded-xl max-w-md w-full border border-yellow-500/30">
-                <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-yellow-500" />
-                    Maradona # 10
-                  </h2>
-                  <button onClick={() => setMostrarModalResumen(false)} className="text-slate-400 hover:text-white">
-                    <X className="h-5 w-5" />
-                  </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-4">
+                <h4 className="text-amber-400 font-extrabold text-xs uppercase">💰 ESTRUCTURA DE COSTOS</h4>
+                <div className="text-[11px] text-slate-300 space-y-1 mt-2">
+                  <p>• Simple (1 Opción): 0.50€</p>
+                  <p>• Doble (2 Opciones): 1.00€</p>
+                  <p>• Triple (3 Opciones): 1.50€</p>
+                  <p>• Marcador Exacto: 0.50€</p>
+                  <p>• Podio Finalistas: 1.00€</p>
                 </div>
-                <div className="p-4 space-y-4">
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {Object.entries(apuestas).map(([id, apuesta]) => {
-                      if (!apuesta.aceptada) return null
-                      const partido = PARTIDOS.find(p => p.id === id)
-                      if (!partido) return null
-                      const seleccionadas = [apuesta.L, apuesta.E, apuesta.V].filter(Boolean).length
-                      const costo = seleccionadas * 0.50 + (apuesta.golesLocal !== "" || apuesta.golesVisita !== "" ? 0.50 : 0)
-                      return (
-                        <div key={id} className="bg-slate-800/50 rounded-lg p-2 text-sm">
-                          <p className="text-slate-300">{partido.local} vs {partido.visitante}</p>
-                          <p className="text-xs text-yellow-400">{costo.toFixed(2)}€</p>
-                        </div>
-                      )
-                    })}
-                    {apuestaFinalista.aceptada && (
-                      <div className="bg-slate-800/50 rounded-lg p-2 text-sm">
-                        <p className="text-slate-300">Finalistas: {apuestaFinalista.primero} vs {apuestaFinalista.segundo}</p>
-                        <p className="text-xs text-yellow-400">1.00€</p>
+              </div>
+              <div className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-4">
+                <h4 className="text-emerald-400 font-extrabold text-xs uppercase">🏆 REPARTO DEL POZO (33% c/u)</h4>
+                <div className="text-[11px] text-slate-300 space-y-1 mt-2">
+                  <p>• 1er: Mayor puntuación acumulada</p>
+                  <p>• 2do: Mayor cantidad de goles exactos</p>
+                  <p>• 3er: Campeón y Subcampeón exactos</p>
+                </div>
+              </div>
+            </div>
+            <Button onClick={() => setMostrarReglas(false)} className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black">
+              Cerrar
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Resumen - Maradona #10 */}
+      {mostrarModalResumen && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-xl max-w-md w-full border border-yellow-500/30">
+            <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-yellow-500" />
+                Maradona # 10
+              </h2>
+              <button onClick={() => setMostrarModalResumen(false)} className="text-slate-400 hover:text-white">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {Object.entries(apuestas).map(([id, apuesta]) => {
+                  if (!apuesta.aceptada) return null
+                  const partido = TODOS_LOS_PARTIDOS.find(p => p.id === id)
+                  if (!partido) return null
+                  const seleccionadas = [apuesta.L, apuesta.E, apuesta.V].filter(Boolean).length
+                  const costo = seleccionadas * 0.50 + (apuesta.golesLocal !== "" || apuesta.golesVisita !== "" ? 0.50 : 0)
+                  return (
+                    <div key={id} className="bg-slate-800/50 rounded-lg p-2 text-sm">
+                      <p className="text-slate-300">{partido.local} vs {partido.visitante}</p>
+                      <p className="text-xs text-yellow-400">{costo.toFixed(2)}€</p>
+                    </div>
+                  )
+                })}
+                {apuestaFinalista.aceptada && (
+                  <div className="bg-slate-800/50 rounded-lg p-2 text-sm">
+                    <p className="text-slate-300">Finalistas: {apuestaFinalista.primero} vs {apuestaFinalista.segundo}</p>
+                    <p className="text-xs text-yellow-400">1.00€</p>
+                  </div>
+                )}
+              </div>
+              <div className="bg-slate-800/50 rounded-lg p-3">
+                <p className="text-sm text-slate-400">Total a pagar</p>
+                <p className="text-3xl font-black text-yellow-500">{totalApuestas.toFixed(2)}€</p>
+              </div>
+              <Button onClick={handlePagar} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3">
+                <CreditCard className="h-4 w-4 mr-2" />
+                Pagar con PayPal
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Registro */}
+      {mostrarModalRegistro && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-xl max-w-md w-full border border-yellow-500/30">
+            <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <UserPlus className="h-5 w-5 text-yellow-500" />
+                Registro de Participante
+              </h2>
+              <button onClick={() => setMostrarModalRegistro(false)} className="text-slate-400 hover:text-white">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="text-sm text-slate-400 block mb-1">Nombre completo</label>
+                <Input type="text" placeholder="Ej. Edgar Jara" value={nombreRegistro} onChange={(e) => setNombreRegistro(e.target.value)} className="bg-slate-800 border-slate-700 text-white" />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400 block mb-1">Correo electrónico</label>
+                <Input type="email" placeholder="ejemplo@correo.com" value={emailRegistro} onChange={(e) => setEmailRegistro(e.target.value)} className="bg-slate-800 border-slate-700 text-white" />
+              </div>
+              {errorRegistro && <p className="text-red-400 text-sm">{errorRegistro}</p>}
+              <Button onClick={handleRegistro} className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-bold">
+                Registrarse y Continuar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="p-[0.75rem] md:p-[1.5rem] pb-28">
+        <div className="max-w-4xl mx-auto space-y-[0.75rem]">
+
+          {/* ========== 1ra APUESTA: FINALISTAS DE COPA ========== */}
+          <div className="relative">
+            <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden">
+              <div className="pt-2 px-3">
+                <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
+                  <Award className="h-3 w-3" /> 1ra. Apuesta: Finalistas de Copa (1.00€)
+                </span>
+              </div>
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full opacity-70"></div>
+              <div className="pl-3">
+                <div className="p-3">
+                  <div className="flex items-center justify-center gap-6 flex-wrap">
+                    <div className="text-center">
+                      <span className="text-[0.55rem] font-bold text-green-400 uppercase block mb-2">🏆 CAMPEÓN</span>
+                      <Input type="text" placeholder="Ej. Brasil" value={apuestaFinalista.primero} onChange={(e) => setApuestaFinalista(prev => ({ ...prev, primero: e.target.value }))} disabled={apuestaFinalista.aceptada} className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50" />
+                    </div>
+                    <div className="text-center">
+                      <span className="text-[0.55rem] font-bold text-blue-400 uppercase block mb-2">🥈 SUBCAMPEÓN</span>
+                      <Input type="text" placeholder="Ej. Argentina" value={apuestaFinalista.segundo} onChange={(e) => setApuestaFinalista(prev => ({ ...prev, segundo: e.target.value }))} disabled={apuestaFinalista.aceptada} className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-start gap-1 text-slate-400 text-[0.55rem]">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        ✅ Apuesta abierta (válida hasta el inicio del Mundial)
                       </div>
-                    )}
+                      {apuestaFinalista.aceptada && (
+                        <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
+                          <span className="text-base">🏆</span>
+                          <span className="text-[0.65rem] font-bold text-white">Finalistas</span>
+                          <span className="text-[0.7rem] font-black text-yellow-400">1.00€</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => {
+                        if (!apuestaFinalista.primero || !apuestaFinalista.segundo) {
+                          alert("⚠️ Debes escribir un CAMPEÓN y un SUBCAMPEÓN")
+                          return
+                        }
+                        setApuestaFinalista(prev => ({ ...prev, aceptada: true }))
+                        guardarLocal()
+                      }} disabled={apuestaFinalista.aceptada || !apuestaFinalista.primero || !apuestaFinalista.segundo} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${apuestaFinalista.aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
+                        <CheckCircle className="h-3 w-3" /> Aceptar
+                      </button>
+                      <button onClick={() => setApuestaFinalista(prev => ({ ...prev, aceptada: false }))} disabled={!apuestaFinalista.aceptada} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
+                        <Edit className="h-3 w-3" /> Editar
+                      </button>
+                    </div>
                   </div>
-                  <div className="bg-slate-800/50 rounded-lg p-3">
-                    <p className="text-sm text-slate-400">Total a pagar</p>
-                    <p className="text-3xl font-black text-yellow-500">{totalApuestas.toFixed(2)}€</p>
-                  </div>
-                  <Button onClick={handlePagar} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3">
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Pagar con PayPal
-                  </Button>
+                  {apuestaFinalista.aceptada && (
+                    <div className="text-center text-emerald-400 text-[0.55rem] mt-1">
+                      ✓ Apuesta registrada: {apuestaFinalista.primero} vs {apuestaFinalista.segundo}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Modal Registro */}
-          {mostrarModalRegistro && (
-            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 rounded-xl max-w-md w-full border border-yellow-500/30">
-                <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <UserPlus className="h-5 w-5 text-yellow-500" />
-                    Registro de Participante
-                  </h2>
-                  <button onClick={() => setMostrarModalRegistro(false)} className="text-slate-400 hover:text-white">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                <div className="p-4 space-y-4">
-                  <div>
-                    <label className="text-sm text-slate-400 block mb-1">Nombre completo</label>
-                    <Input 
-                      type="text" 
-                      placeholder="Ej. Edgar Jara"
-                      value={nombreRegistro}
-                      onChange={(e) => setNombreRegistro(e.target.value)}
-                      className="bg-slate-800 border-slate-700 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-slate-400 block mb-1">Correo electrónico</label>
-                    <Input 
-                      type="email" 
-                      placeholder="ejemplo@correo.com"
-                      value={emailRegistro}
-                      onChange={(e) => setEmailRegistro(e.target.value)}
-                      className="bg-slate-800 border-slate-700 text-white"
-                    />
-                  </div>
-                  {errorRegistro && <p className="text-red-400 text-sm">{errorRegistro}</p>}
-                  <Button onClick={handleRegistro} className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-bold">
-                    Registrarse y Continuar
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Lista de partidos */}
+          {/* ========== LISTA DE PARTIDOS ========== */}
           <div className="space-y-4">
-            {PARTIDOS.map((partido) => {
+            {partidosVisibles.map((partido) => {
               const apuesta = apuestas[partido.id] || { L: false, E: false, V: false, golesLocal: "", golesVisita: "", aceptada: false }
               const tipo = getTipoApuesta(apuesta)
               const aceptada = apuesta.aceptada
@@ -533,14 +569,21 @@ export default function QuinielaPage() {
               const esHoy = esPartidoHoy(partido.timestamp)
               
               return (
-                <div key={partido.id} className={`bg-slate-900 rounded-xl border overflow-hidden shadow-xl transition-all ${esHoy ? 'border-slate-700 scale-[1.02]' : 'border-slate-800'}`}>
+                <div key={partido.id} className={`bg-slate-900 rounded-xl border overflow-hidden shadow-xl transition-all ${esHoy ? 'border-yellow-500/50 scale-[1.01]' : 'border-slate-800'}`}>
                   
+                  {/* Cabecera del partido */}
                   <div className="p-3 bg-slate-950/40 border-b border-slate-800">
                     <div className="text-center font-black text-sky-400 text-sm">
                       {partido.banderaLocal} {partido.local} <span className="text-yellow-600 mx-2">VS</span> {partido.visitante} {partido.banderaVisitante}
                     </div>
+                    {esHoy && (
+                      <div className="text-center text-[9px] text-yellow-500 mt-0.5 font-bold">
+                        ⭐ PARTIDO ESTELAR DEL DÍA
+                      </div>
+                    )}
                   </div>
 
+                  {/* Info del partido */}
                   <div className="px-3 pt-2">
                     <div className="flex flex-wrap justify-center gap-3 text-[0.55rem] text-slate-400">
                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {formatearFecha(partido.fecha)}</span>
@@ -555,12 +598,12 @@ export default function QuinielaPage() {
                     </div>
                   </div>
 
-                  {/* 1ra APUESTA */}
+                  {/* ========== 2da APUESTA: RESULTADO (3 opciones) ========== */}
                   <div className="relative mt-2">
                     <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden mx-3">
                       <div className="pt-2 px-3">
                         <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
-                          <TrendingUp className="h-3 w-3" /> 1ra. Apuesta: Resultado
+                          <TrendingUp className="h-3 w-3" /> 2da. Apuesta: Resultado
                         </span>
                       </div>
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full opacity-70"></div>
@@ -606,7 +649,7 @@ export default function QuinielaPage() {
                               )}
                             </div>
                             <div className="flex gap-2">
-                              <button onClick={() => aceptarApuesta(partido.id)} disabled={aceptada || estadoTiempo.bloqueado || (seleccionadas === 0 && apuesta.golesLocal === "" && apuesta.golesVisita === "")} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
+                              <button onClick={() => aceptarApuestaResultado(partido.id)} disabled={aceptada || estadoTiempo.bloqueado || seleccionadas === 0} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
                                 <CheckCircle className="h-3 w-3" /> Aceptar
                               </button>
                               <button onClick={() => editarApuesta(partido.id)} disabled={!aceptada || estadoTiempo.bloqueado} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
@@ -619,11 +662,11 @@ export default function QuinielaPage() {
                     </div>
                   </div>
 
-                  {/* 2da APUESTA */}
+                  {/* ========== 3ra APUESTA: MARCADOR (con botones Aceptar/Editar) ========== */}
                   <div className="bg-slate-950/50 rounded-[0.6rem] border border-slate-800 mx-3 mt-2 mb-3">
                     <div className="border-b border-slate-800/80 p-2 text-center">
                       <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
-                        <Target className="h-3 w-3" /> 2da. Apuesta: Marcador (0.50€)
+                        <Target className="h-3 w-3" /> 3ra. Apuesta: Marcador (0.50€)
                       </span>
                     </div>
                     
@@ -653,7 +696,20 @@ export default function QuinielaPage() {
                             </div>
                           )}
                         </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => aceptarApuestaMarcador(partido.id)} disabled={aceptada || estadoTiempo.bloqueado || (apuesta.golesLocal === "" && apuesta.golesVisita === "")} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
+                            <CheckCircle className="h-3 w-3" /> Aceptar
+                          </button>
+                          <button onClick={() => editarApuesta(partido.id)} disabled={!aceptada || estadoTiempo.bloqueado} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
+                            <Edit className="h-3 w-3" /> Editar
+                          </button>
+                        </div>
                       </div>
+                      {aceptada && (apuesta.golesLocal !== "" || apuesta.golesVisita !== "") && (
+                        <div className="text-center text-emerald-400 text-[0.55rem] mt-1">
+                          ✓ Marcador registrado: {apuesta.golesLocal || "0"} - {apuesta.golesVisita || "0"}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -661,93 +717,22 @@ export default function QuinielaPage() {
             })}
           </div>
 
-          {/* 3ra APUESTA: FINALISTAS */}
-          <div className="relative mt-4">
-            <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden">
-              <div className="pt-2 px-3">
-                <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
-                  <Award className="h-3 w-3" /> 3ra. Apuesta: Finalistas de Copa (1.00€)
-                </span>
-              </div>
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full opacity-70"></div>
-              <div className="pl-3">
-                <div className="p-3">
-                  <div className="flex items-center justify-center gap-6 flex-wrap">
-                    <div className="text-center">
-                      <span className="text-[0.55rem] font-bold text-green-400 uppercase block mb-2">🏆 CAMPEÓN</span>
-                      <Input 
-                        type="text" 
-                        placeholder="Ej. Brasil" 
-                        value={apuestaFinalista.primero} 
-                        onChange={(e) => setApuestaFinalista(prev => ({ ...prev, primero: e.target.value }))}
-                        disabled={apuestaFinalista.aceptada}
-                        className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50"
-                      />
-                    </div>
-                    <div className="text-center">
-                      <span className="text-[0.55rem] font-bold text-blue-400 uppercase block mb-2">🥈 SUBCAMPEÓN</span>
-                      <Input 
-                        type="text" 
-                        placeholder="Ej. Argentina" 
-                        value={apuestaFinalista.segundo} 
-                        onChange={(e) => setApuestaFinalista(prev => ({ ...prev, segundo: e.target.value }))}
-                        disabled={apuestaFinalista.aceptada}
-                        className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-start gap-1 text-slate-400 text-[0.55rem]">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        ✅ Apuesta abierta (válida hasta el inicio del Mundial)
-                      </div>
-                      {apuestaFinalista.aceptada && (
-                        <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
-                          <span className="text-base">🏆</span>
-                          <span className="text-[0.65rem] font-bold text-white">Finalistas</span>
-                          <span className="text-[0.7rem] font-black text-yellow-400">1.00€</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => {
-                        if (!apuestaFinalista.primero || !apuestaFinalista.segundo) {
-                          alert("⚠️ Debes escribir un CAMPEÓN y un SUBCAMPEÓN")
-                          return
-                        }
-                        setApuestaFinalista(prev => ({ ...prev, aceptada: true }))
-                        guardarLocal()
-                      }} disabled={apuestaFinalista.aceptada || !apuestaFinalista.primero || !apuestaFinalista.segundo} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${apuestaFinalista.aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
-                        <CheckCircle className="h-3 w-3" /> Aceptar
-                      </button>
-                      <button onClick={() => setApuestaFinalista(prev => ({ ...prev, aceptada: false }))} disabled={!apuestaFinalista.aceptada} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
-                        <Edit className="h-3 w-3" /> Editar
-                      </button>
-                    </div>
-                  </div>
-                  {apuestaFinalista.aceptada && (
-                    <div className="text-center text-emerald-400 text-[0.55rem] mt-1">
-                      ✓ Apuesta registrada: {apuestaFinalista.primero} vs {apuestaFinalista.segundo}
-                    </div>
-                  )}
-                </div>
-              </div>
+          {/* Botón para cargar más partidos */}
+          {partidosVisibles.length < TODOS_LOS_PARTIDOS.length && (
+            <div className="flex justify-center mt-4">
+              <Button onClick={cargarMasPartidos} disabled={cargandoMas} className="bg-slate-800 hover:bg-slate-700 text-white gap-2">
+                {cargandoMas ? "Cargando..." : "Cargar más partidos"}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* BOTÓN FLOTANTE "VALIDAR APUESTAS" */}
+      {/* BOTÓN FLOTANTE */}
       {totalApuestas > 0 && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <Button 
-            onClick={handleValidarApuestas}
-            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold gap-3 px-8 py-4 text-lg shadow-2xl rounded-full border border-green-500/30"
-          >
+          <Button onClick={handleValidarApuestas} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold gap-3 px-8 py-4 text-lg shadow-2xl rounded-full border border-green-500/30">
             <CheckCircle className="h-5 w-5" />
             Validar Apuestas ({totalApuestas.toFixed(2)}€)
           </Button>
