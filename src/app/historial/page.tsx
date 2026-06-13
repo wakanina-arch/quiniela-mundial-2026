@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Trophy, ArrowRight, ArrowLeft, LayoutDashboard, Calendar, MapPin, Clock, ChevronDown, ChevronUp, Users, Star, Newspaper } from "lucide-react"
+import { Trophy, ArrowRight, ArrowLeft, LayoutDashboard, Calendar, MapPin, Clock, ChevronDown, ChevronUp, Users, Star, Newspaper, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface PartidoReal {
@@ -206,9 +206,10 @@ const obtenerPartidosPorRonda = (ronda: number) => {
   return TODOS_LOS_PARTIDOS.filter(p => p.ronda === ronda).sort((a, b) => a.timestamp - b.timestamp)
 }
 
-export default function QuinielaPage() {
+export default function HistorialPage() {
   const [rondaSeleccionada, setRondaSeleccionada] = useState<number>(1)
   const [partidos, setPartidos] = useState<PartidoReal[]>([])
+  const [actualizando, setActualizando] = useState(false)
 
   useEffect(() => {
     setPartidos(obtenerPartidosPorRonda(rondaSeleccionada))
@@ -219,36 +220,32 @@ export default function QuinielaPage() {
     return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
   }
 
+  const actualizarDatos = () => {
+    setActualizando(true)
+    setTimeout(() => {
+      setPartidos(obtenerPartidosPorRonda(rondaSeleccionada))
+      setActualizando(false)
+    }, 500)
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-50">
-      {/* HEADER */}
+      {/* HEADER MODIFICADO - Mismo estilo que noticias y rankings */}
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <Link href="/" className="text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <nav className="flex gap-2 sm:gap-4 items-center">
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/historial" className="gap-1 flex items-center">
-              <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
-            <Link href="/rankings" className="gap-1 flex items-center">
-              <Users className="h-3.5 w-3.5 text-sky-400" /> Clasificación
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/top4" className="gap-1 flex items-center">
-              <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/noticias" className="gap-1 flex items-center">
-              <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
-            </Link>
-          </Button>
-        </nav>
-        <div className="w-5"></div>
+        <h1 className="text-lg font-bold text-white flex items-center gap-2">
+          <LayoutDashboard className="h-5 w-5 text-yellow-500" />
+          Historial de Partidos
+        </h1>
+        <button 
+          onClick={actualizarDatos}
+          disabled={actualizando}
+          className="text-slate-400 hover:text-white transition-colors"
+        >
+          <RefreshCw className={`h-5 w-5 ${actualizando ? "animate-spin" : ""}`} />
+        </button>
       </header>
 
       <main className="flex-1">
@@ -266,10 +263,10 @@ export default function QuinielaPage() {
             </p>
             <div className="mt-4">
               <Button size="lg" className="bg-sky-600 hover:bg-sky-700 text-white gap-2 font-bold shadow-lg shadow-sky-600/10" asChild>
-  <Link href="/quiniela">
-    Llenar mi Quiniela <ArrowRight className="h-4 w-4" />
-  </Link>
-</Button>
+                <Link href="/quiniela">
+                  Llenar mi Quiniela <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </div>
         </section>

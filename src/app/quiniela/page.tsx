@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Trophy, LayoutDashboard, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, Users, Star, Newspaper, ArrowLeft } from "lucide-react"
+import { Trophy, LayoutDashboard, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, Users, Star, Newspaper, ArrowLeft, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -79,6 +79,7 @@ export default function QuinielaPage() {
   const [apuestas, setApuestas] = useState<Record<string, Apuesta>>({})
   const [apuestaFinalista, setApuestaFinalista] = useState<ApuestaFinalista>({ primero: "", segundo: "", aceptada: false })
   const [mostrarReglas, setMostrarReglas] = useState(false)
+  const [actualizando, setActualizando] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem("quiniela_apuestas_v2")
@@ -227,50 +228,67 @@ export default function QuinielaPage() {
     return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
   }
 
+  const actualizarDatos = () => {
+    setActualizando(true)
+    setTimeout(() => {
+      guardarLocal()
+      setActualizando(false)
+    }, 500)
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      {/* HEADER con barra de navegación */}
+      {/* HEADER unificado con el mismo estilo que historial, rankings y noticias */}
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <Link href="/" className="text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <nav className="flex gap-2 sm:gap-4 items-center">
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/historial" className="gap-1 flex items-center">
-              <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
-            <Link href="/rankings" className="gap-1 flex items-center">
-              <Users className="h-3.5 w-3.5 text-sky-400" /> Rankings
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/top4" className="gap-1 flex items-center">
-              <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/noticias" className="gap-1 flex items-center">
-              <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
-            </Link>
-          </Button>
-        </nav>
-        <div className="w-5"></div>
+        <h1 className="text-lg font-bold text-white flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-yellow-500" />
+          Quiniela de Apuestas
+        </h1>
+        <button 
+          onClick={actualizarDatos}
+          disabled={actualizando}
+          className="text-slate-400 hover:text-white transition-colors"
+        >
+          <RefreshCw className={`h-5 w-5 ${actualizando ? "animate-spin" : ""}`} />
+        </button>
       </header>
 
       <div className="p-[0.75rem] md:p-[1.5rem] pb-24">
         <div className="max-w-4xl mx-auto space-y-[0.75rem]">
           
-          {/* Título y botón reglas */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[0.75rem] bg-slate-900 p-[1rem] rounded-[0.75rem] border border-slate-800 shadow-xl">
-            <div>
-              <h1 className="text-[1rem] font-bold flex items-center gap-2 text-white uppercase tracking-tight">
-                <Trophy className="h-[0.75rem] w-[0.75rem] text-yellow-500" /> QUINIELA DE APUESTAS
-              </h1>
-            </div>
-            <Button onClick={() => setMostrarReglas(!mostrarReglas)} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-[0.75rem] shadow-md gap-2 rounded-[0.5rem] text-[0.7rem] py-[0.4rem]">
-              <Info className="h-[0.7rem] w-[0.7rem]" /> Reglas
+          {/* Navegación principal 
+          <div className="flex justify-center">
+            <nav className="flex gap-2 sm:gap-4 items-center bg-slate-800/50 p-2 rounded-lg">
+              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+                <Link href="/historial" className="gap-1 flex items-center">
+                  <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
+                </Link>
+              </Button>
+              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
+                <Link href="/rankings" className="gap-1 flex items-center">
+                  <Users className="h-3.5 w-3.5 text-sky-400" /> Rankings
+                </Link>
+              </Button>
+              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+                <Link href="/top4" className="gap-1 flex items-center">
+                  <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
+                </Link>
+              </Button>
+              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+                <Link href="/noticias" className="gap-1 flex items-center">
+                  <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
+                </Link>
+              </Button>
+            </nav>
+          </div>*/}
+
+          {/* Botón reglas */}
+          <div className="flex justify-end">
+            <Button onClick={() => setMostrarReglas(!mostrarReglas)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-3 py-1.5 text-xs rounded-md gap-1">
+              <Info className="h-3 w-3" /> Reglas
             </Button>
           </div>
 
