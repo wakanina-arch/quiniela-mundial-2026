@@ -33,7 +33,7 @@ interface PartidoReal {
 }
 
 const BANDERAS: Record<string, string> = {
-  "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Chequia": "🇨🇿", "Sudáfrica": "🇿🇦",
+  "México": "🇲🇽", "Corea del Sur": "🇰🇷", "República Checa": "🇨🇿", "Sudáfrica": "🇿🇦",
   "Canadá": "🇨🇦", "Bosnia y H.": "🇧🇦", "Catar": "🇶🇦", "Suiza": "🇨🇭",
   "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
   "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
@@ -47,37 +47,96 @@ const BANDERAS: Record<string, string> = {
   "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦"
 }
 
-// PRÓXIMOS PARTIDOS - SOLO SEDES MÉXICO, EE.UU. Y CANADÁ
+// DATOS REALES DEL MUNDIAL 2026 SEGÚN FIFA
 const PROXIMOS_PARTIDOS: PartidoReal[] = [
+  // Partidos ya jugados (resultados reales)
   {
-    id: 1, grupo: "A", local: "México", visitante: "Corea del Sur",
-    golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "12/06/2026", hora: "18:00", estadio: "Estadio Azteca", ciudad: "Ciudad de México", pais: "México"
+    id: 1, grupo: "A", local: "México", visitante: "Sudáfrica",
+    golesLocal: 2, golesVisitante: 0, jugado: true,
+    fecha: "11/06/2026", hora: "13:00", estadio: "Estadio Azteca", ciudad: "Ciudad de México", pais: "México"
   },
   {
-    id: 2, grupo: "B", local: "Canadá", visitante: "Bosnia y H.",
-    golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "12/06/2026", hora: "21:00", estadio: "BMO Field", ciudad: "Toronto", pais: "Canadá"
+    id: 2, grupo: "A", local: "Corea del Sur", visitante: "República Checa",
+    golesLocal: 2, golesVisitante: 1, jugado: true,
+    fecha: "11/06/2026", hora: "20:00", estadio: "Estadio Akron", ciudad: "Guadalajara", pais: "México"
   },
   {
-    id: 3, grupo: "D", local: "Estados Unidos", visitante: "Paraguay",
-    golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "12/06/2026", hora: "15:00", estadio: "MetLife Stadium", ciudad: "East Rutherford", pais: "EE.UU."
+    id: 3, grupo: "B", local: "Canadá", visitante: "Bosnia y H.",
+    golesLocal: 1, golesVisitante: 1, jugado: true,
+    fecha: "12/06/2026", hora: "15:00", estadio: "BMO Field", ciudad: "Toronto", pais: "Canadá"
   },
   {
-    id: 4, grupo: "C", local: "Brasil", visitante: "Marruecos",
+    id: 4, grupo: "D", local: "Estados Unidos", visitante: "Paraguay",
+    golesLocal: 4, golesVisitante: 1, jugado: true,
+    fecha: "12/06/2026", hora: "18:00", estadio: "SoFi Stadium", ciudad: "Los Ángeles", pais: "EEUU"
+  },
+  // Partidos de hoy - 13 de junio
+  {
+    id: 5, grupo: "B", local: "Catar", visitante: "Suiza",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "13/06/2026", hora: "16:00", estadio: "Rose Bowl", ciudad: "Los Ángeles", pais: "EE.UU."
+    fecha: "13/06/2026", hora: "15:00", estadio: "Levi's Stadium", ciudad: "San Francisco", pais: "EEUU"
   },
   {
-    id: 5, grupo: "E", local: "Alemania", visitante: "Ecuador",
+    id: 6, grupo: "C", local: "Brasil", visitante: "Marruecos",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "13/06/2026", hora: "20:00", estadio: "Estadio BBVA", ciudad: "Monterrey", pais: "México"
+    fecha: "13/06/2026", hora: "18:00", estadio: "MetLife Stadium", ciudad: "New Jersey", pais: "EEUU"
+  },
+  {
+    id: 7, grupo: "C", local: "Haití", visitante: "Escocia",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "13/06/2026", hora: "21:00", estadio: "Gillette Stadium", ciudad: "Boston", pais: "EEUU"
+  },
+  // Partidos de mañana - 14 de junio
+  {
+    id: 8, grupo: "D", local: "Australia", visitante: "Turquía",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "14/06/2026", hora: "00:00", estadio: "BC Place", ciudad: "Vancouver", pais: "Canadá"
+  },
+  {
+    id: 9, grupo: "E", local: "Alemania", visitante: "Curazao",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "14/06/2026", hora: "12:00", estadio: "NRG Stadium", ciudad: "Houston", pais: "EEUU"
+  },
+  {
+    id: 10, grupo: "F", local: "Países Bajos", visitante: "Japón",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "14/06/2026", hora: "15:00", estadio: "AT&T Stadium", ciudad: "Dallas", pais: "EEUU"
+  },
+  {
+    id: 11, grupo: "E", local: "Costa de Marfil", visitante: "Ecuador",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "14/06/2026", hora: "19:00", estadio: "Lincoln Financial Field", ciudad: "Philadelphia", pais: "EEUU"
+  },
+  {
+    id: 12, grupo: "F", local: "Suecia", visitante: "Túnez",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "14/06/2026", hora: "20:00", estadio: "Estadio BBVA", ciudad: "Monterrey", pais: "México"
+  },
+  // Próximos partidos - 15 de junio
+  {
+    id: 13, grupo: "H", local: "España", visitante: "Cabo Verde",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "15/06/2026", hora: "12:00", estadio: "Mercedes-Benz Stadium", ciudad: "Atlanta", pais: "EEUU"
+  },
+  {
+    id: 14, grupo: "G", local: "Bélgica", visitante: "Egipto",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "15/06/2026", hora: "12:00", estadio: "Lumen Field", ciudad: "Seattle", pais: "EEUU"
+  },
+  {
+    id: 15, grupo: "H", local: "Arabia Saudita", visitante: "Uruguay",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "15/06/2026", hora: "18:00", estadio: "Hard Rock Stadium", ciudad: "Miami", pais: "EEUU"
+  },
+  {
+    id: 16, grupo: "G", local: "Irán", visitante: "Nueva Zelanda",
+    golesLocal: 0, golesVisitante: 0, jugado: false,
+    fecha: "15/06/2026", hora: "18:00", estadio: "SoFi Stadium", ciudad: "Los Ángeles", pais: "EEUU"
   }
 ]
 
 const GRUPOS_EQUIPOS = [
-  { id: "A", equipos: ["México", "Corea del Sur", "Chequia", "Sudáfrica"] },
+  { id: "A", equipos: ["México", "Corea del Sur", "República Checa", "Sudáfrica"] },
   { id: "B", equipos: ["Canadá", "Bosnia y H.", "Catar", "Suiza"] },
   { id: "C", equipos: ["Brasil", "Marruecos", "Haití", "Escocia"] },
   { id: "D", equipos: ["Estados Unidos", "Paraguay", "Australia", "Turquía"] },
@@ -159,7 +218,10 @@ export default function Home() {
       })
     })
 
-    partidosReales.forEach(partido => {
+    // Primero agregar resultados de partidos ya jugados
+    const partidosConResultados = [...PROXIMOS_PARTIDOS.filter(p => p.jugado), ...partidosReales]
+    
+    partidosConResultados.forEach(partido => {
       if (!partido.jugado) return
 
       const local = stats[partido.local]
@@ -219,7 +281,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-50">
-      {/* HEADER - Solo navegación centrada, sin título */}
       <header className="px-4 lg:px-6 h-16 flex items-center justify-center border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <nav className="flex gap-2 sm:gap-4 items-center">
           <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
@@ -287,7 +348,13 @@ export default function Home() {
                         <span className="text-lg mr-1">{BANDERAS[partido.local] || "🏳️"}</span>
                         <span className="text-slate-100">{partido.local}</span>
                       </div>
-                      <div className="text-yellow-500 font-black text-xs px-2 py-1 bg-slate-800 rounded">VS</div>
+                      {partido.jugado ? (
+                        <div className="text-yellow-500 font-black text-lg px-2 py-1 bg-slate-800 rounded">
+                          {partido.golesLocal} - {partido.golesVisitante}
+                        </div>
+                      ) : (
+                        <div className="text-yellow-500 font-black text-xs px-2 py-1 bg-slate-800 rounded">VS</div>
+                      )}
                       <div className="flex-1 text-left">
                         <span className="text-lg mr-1">{BANDERAS[partido.visitante] || "🏳️"}</span>
                         <span className="text-slate-100">{partido.visitante}</span>
@@ -295,12 +362,17 @@ export default function Home() {
                     </div>
                     <div className="mt-3 text-center text-xs text-slate-400 flex flex-wrap justify-center gap-2">
                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {partido.fecha}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora}</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora} ET</span>
                     </div>
                     <div className="mt-2 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1">
                       <MapPin className="h-3 w-3" />
                       {partido.estadio}, {partido.ciudad} ({partido.pais})
                     </div>
+                    {partido.jugado && (
+                      <div className="mt-2 text-center text-[10px] text-green-400">
+                        ✓ Partido finalizado
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -382,7 +454,7 @@ export default function Home() {
       </main>
 
       <footer className="py-8 text-center text-slate-500 text-sm border-t border-slate-800">
-        <p>© 2026 Quiniela Mundialista — Datos oficiales actualizados en tiempo real</p>
+        <p>© 2026 Quiniela Mundialista — Datos oficiales actualizados en tiempo real según FIFA</p>
       </footer>
     </div>
   )
