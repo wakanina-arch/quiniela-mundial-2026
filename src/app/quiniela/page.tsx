@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Trophy, LayoutDashboard, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, Users, Star, Newspaper, ArrowLeft, X, CreditCard, UserPlus } from "lucide-react"
+import { Trophy, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, ArrowLeft, X, CreditCard, UserPlus, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -87,6 +87,7 @@ export default function QuinielaPage() {
   const [nombreRegistro, setNombreRegistro] = useState("")
   const [emailRegistro, setEmailRegistro] = useState("")
   const [errorRegistro, setErrorRegistro] = useState("")
+  const [actualizando, setActualizando] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem("quiniela_apuestas_v2")
@@ -110,6 +111,14 @@ export default function QuinielaPage() {
       fecha: new Date().toISOString()
     }
     localStorage.setItem("quiniela_apuestas_v2", JSON.stringify(data))
+  }
+
+  const actualizarDatos = () => {
+    setActualizando(true)
+    setTimeout(() => {
+      guardarLocal()
+      setActualizando(false)
+    }, 500)
   }
 
   const estamparSello = (partidoId: string, tipo: "L" | "E" | "V") => {
@@ -185,7 +194,6 @@ export default function QuinielaPage() {
       [partidoId]: { ...prev[partidoId], aceptada: true } 
     }))
     
-    // SIN ALERT - eliminado
     guardarLocal()
   }
 
@@ -291,8 +299,6 @@ export default function QuinielaPage() {
 
   const handlePagar = () => {
     const total = calcularTotalApuestas()
-    // Aquí irá la integración con PayPal
-    // Por ahora mostramos un modal de preparación
     alert(`🚀 Preparando pago de ${total.toFixed(2)}€ con PayPal...\n\n(Próximamente: integración completa)`)
   }
 
@@ -300,7 +306,7 @@ export default function QuinielaPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      {/* HEADER */}
+      {/* HEADER con flecha izquierda, título y refresh a la derecha */}
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <Link href="/" className="text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
@@ -309,68 +315,123 @@ export default function QuinielaPage() {
           <Trophy className="h-5 w-5 text-yellow-500" />
           Quiniela de Apuestas
         </h1>
-        <Button onClick={() => setMostrarReglas(!mostrarReglas)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-3 py-1.5 text-xs rounded-md gap-1">
-          <Info className="h-3 w-3" /> Reglas
-        </Button>
+        <button 
+          onClick={actualizarDatos}
+          disabled={actualizando}
+          className="text-slate-400 hover:text-white transition-colors"
+        >
+          <RefreshCw className={`h-5 w-5 ${actualizando ? "animate-spin" : ""}`} />
+        </button>
       </header>
 
-      {/* Navegación secundaria */}
-      <div className="flex justify-center py-2 bg-slate-900/50 border-b border-slate-800">
-        <nav className="flex gap-2 sm:gap-4 items-center">
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/historial" className="gap-1 flex items-center">
-              <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
-            <Link href="/rankings" className="gap-1 flex items-center">
-              <Users className="h-3.5 w-3.5 text-sky-400" /> Rankings
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/top4" className="gap-1 flex items-center">
-              <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-            <Link href="/noticias" className="gap-1 flex items-center">
-              <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
-            </Link>
-          </Button>
-        </nav>
+      {/* Botón Reglas debajo del header */}
+     {/* 🔧 BOTÓN DE APERTURA TOTALMENTE CENTRADO */}
+<div className="flex justify-center w-full px-4 lg:px-6">
+  <Button 
+    onClick={() => setMostrarReglas(true)} 
+    className="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold px-4 py-1.5 text-xs rounded-md gap-1.5 shadow-lg transition-all duration-200"
+  >
+    <span className="text-sm">📋</span> Ver Reglamento del Árbitro
+  </Button>
+</div>
+
+{/* 🔧 MODAL FLOTANTE INTEGRADO (OVERLAY COMPLETO) */}
+{mostrarReglas && (
+  <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+    <div className="bg-slate-900 border-2 border-amber-500/40 rounded-xl p-6 shadow-2xl max-w-2xl w-full space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+      
+      {/* Encabezado del Modal */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h2 className="text-sm font-black text-amber-500 uppercase flex items-center gap-1.5 tracking-wider">
+          <Trophy className="h-4 w-4 text-amber-500" /> REGLAMENTO OFICIAL MUNDIAL 2026
+        </h2>
+        <span className="text-[10px] text-slate-500 bg-slate-950 px-2 py-0.5 rounded font-mono font-bold">V2.0</span>
       </div>
 
-      <div className="p-[0.75rem] md:p-[1.5rem] pb-28">
-        <div className="max-w-4xl mx-auto space-y-[0.75rem]">
-          
-          {/* Modal Reglas */}
-          {mostrarReglas && (
-            <div className="bg-slate-900 border-2 border-amber-500/50 p-6 rounded-xl space-y-4">
-              <h2 className="text-sm font-black text-amber-500 uppercase flex items-center gap-1.5 border-b border-slate-800 pb-2">
-                <Trophy className="h-4 w-4" /> REGLAMENTO 2026
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
-                <div className="space-y-2 bg-slate-950/40 p-3 rounded-lg">
-                  <span className="font-bold text-yellow-400">💰 APUESTA MÚLTIPLE</span>
-                  <p>• Simple: 1 opción = 0.50€</p>
-                  <p>• Doble: 2 opciones = 1.00€</p>
-                  <p>• Triple: 3 opciones = 1.50€</p>
-                  <p>• Marcador: 0.50€ por combinación</p>
-                  <p>• Finalistas: 1.00€</p>
-                  <p className="text-amber-400">Máximo 4 apuestas por partido (2.00€)</p>
-                </div>
-                <div className="space-y-2 bg-slate-950/40 p-3 rounded-lg">
-                  <span className="font-bold text-emerald-400">🏆 PREMIOS (33% c/u)</span>
-                  <p>• 1er Ganador: Mayor puntuación acumulada</p>
-                  <p>• 2do Ganador: Mayor cantidad de goles</p>
-                  <p>• 3er Ganador: Acierte Campeón y Subcampeón</p>
-                </div>
-              </div>
-              <Button onClick={() => setMostrarReglas(false)} className="w-full bg-yellow-500 text-slate-950 font-black">Cerrar</Button>
+      {/* REGLAS EN TARJETAS DE ÁRBITRO */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        {/* TARJETA AMARILLA: SISTEMA DE PUNTOS */}
+        <div className="relative overflow-hidden bg-slate-950/40 border border-slate-800/80 rounded-xl p-4 flex gap-3">
+          <div className="absolute -right-4 -bottom-6 w-20 h-28 bg-amber-500 opacity-5 rounded-lg rotate-12 pointer-events-none" />
+          <div className="w-2.5 h-10 bg-amber-400 rounded-sm shadow-[0_0_10px_rgba(245,158,11,0.4)] shrink-0" />
+          <div className="space-y-2 w-full">
+            <h4 className="text-amber-400 font-extrabold text-xs uppercase tracking-wide">Puntuación (Aciertos)</h4>
+            <div className="text-[11px] text-slate-300 space-y-1">
+              <p><span className="text-amber-400 font-bold font-mono">+5 pts</span> Marcador exacto de goles.</p>
+              <p><span className="text-slate-400 font-bold font-mono">+3 pts</span> Tendencia (1X2) sin goles exactos.</p>
+              <p><span className="text-emerald-400 font-bold font-mono">+10 pts</span> Acertar el Campeón del torneo.</p>
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Modal Resumen de Apuestas - Título cambiado a "Maradona # 10" */}
+        {/* TARJETA ROJA: RESTRICCIONES DE CAMPO */}
+        <div className="relative overflow-hidden bg-slate-950/40 border border-slate-800/80 rounded-xl p-4 flex gap-3">
+          <div className="absolute -right-4 -bottom-6 w-20 h-28 bg-rose-600 opacity-5 rounded-lg rotate-12 pointer-events-none" />
+          <div className="w-2.5 h-10 bg-rose-500 rounded-sm shadow-[0_0_10px_rgba(244,63,94,0.4)] shrink-0" />
+          <div className="space-y-2 w-full">
+            <h4 className="text-rose-400 font-extrabold text-xs uppercase tracking-wide">Reglas de Campo</h4>
+            <div className="text-[11px] text-slate-300 space-y-1 leading-relaxed">
+              <p><span className="text-rose-400 font-bold">Fuera de juego:</span> Bloqueo estricto 20 minutos antes de cada partido.</p>
+              <p><span className="text-slate-400 font-bold">Límite de juego:</span> Máximo 3 opciones por partido.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* PARÁMETROS TÉCNICOS DE COSTOS Y TABLA DE PREMIOS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+        
+        {/* Tabla de costos integrados */}
+        <div className="space-y-1.5 bg-slate-950/60 border border-slate-800/60 p-3 rounded-xl">
+          <span className="font-extrabold text-[11px] text-yellow-400 tracking-wide block uppercase">💰 ESTRUCTURA DE COSTOS</span>
+          <div className="space-y-1 text-[11px] text-slate-300">
+            <p className="flex justify-between"><span>• Simple (1 Opción):</span> <span className="font-mono text-slate-400">0.50€</span></p>
+            <p className="flex justify-between"><span>• Doble (2 Opciones):</span> <span className="font-mono text-slate-400">1.00€</span></p>
+            <p className="flex justify-between"><span>• Triple (3 Opciones):</span> <span className="font-mono text-slate-400">1.50€</span></p>
+            <p className="flex justify-between"><span>• Marcador Exacto:</span> <span className="font-mono text-slate-400">0.50€</span></p>
+            <p className="flex justify-between border-t border-slate-800/80 pt-1 mt-1 font-semibold">
+              <span>• Podio Finalistas:</span> <span className="font-mono text-slate-400">1.00€</span>
+            </p>
+          </div>
+          <p className="text-[10px] text-amber-500 font-bold bg-amber-500/5 p-1 rounded border border-amber-500/10 text-center mt-2">
+            Máximo total combinable por partido: 2.00€
+          </p>
+        </div>
+
+        {/* Criterios de Premiación */}
+        <div className="space-y-1.5 bg-slate-950/60 border border-slate-800/60 p-3 rounded-xl flex flex-col justify-between">
+          <div>
+            <span className="font-extrabold text-[11px] text-emerald-400 tracking-wide block uppercase">🏆 REPARTO DEL POZO (33% c/u)</span>
+            <div className="space-y-2 mt-1.5 text-[11px]">
+              <p className="leading-tight"><span className="text-emerald-400 font-bold">1er Puesto:</span> Mayor puntuación acumulada en la tabla general.</p>
+              <p className="leading-tight"><span className="text-emerald-400 font-bold">2do Puesto:</span> Mayor cantidad de goles exactos acertados.</p>
+              <p className="leading-tight"><span className="text-emerald-400 font-bold">3er Puesto:</span> Combinación exacta de Campeón y Subcampeón.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Botón de cierre */}
+      <Button 
+        onClick={() => setMostrarReglas(false)} 
+        className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black tracking-wider text-xs h-9 uppercase shadow-md shadow-amber-500/10"
+      >
+        Entendido, Volver al Campo
+      </Button>
+
+    </div>
+  </div>
+)}
+
+{/* Inicio del contenedor siguiente */}
+<div className="p-[0.75rem] md:p-[1.5rem] pb-28">
+  <div className="max-w-4xl mx-auto space-y-[0.75rem]">
+
+
+          {/* Modal Resumen de Apuestas - Maradona # 10 */}
           {mostrarModalResumen && (
             <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 rounded-xl max-w-md w-full border border-yellow-500/30">
@@ -384,7 +445,6 @@ export default function QuinielaPage() {
                   </button>
                 </div>
                 <div className="p-4 space-y-4">
-                  {/* Lista de apuestas aceptadas */}
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {Object.entries(apuestas).map(([id, apuesta]) => {
                       if (!apuesta.aceptada) return null
