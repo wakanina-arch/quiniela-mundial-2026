@@ -233,7 +233,7 @@ export default function QuinielaPage() {
             </Link>
           </Button>
           <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
-            <Link href="/clasificacion" className="gap-1 flex items-center">
+            <Link href="/rankings" className="gap-1 flex items-center">
               <Users className="h-3.5 w-3.5 text-sky-400" /> Clasificación
             </Link>
           </Button>

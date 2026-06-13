@@ -302,7 +302,7 @@ export default function Home() {
     </Link>
   </Button>
   <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800" asChild>
-    <Link href="/clasificacion" className="gap-1 flex items-center">
+    <Link href="/rankings" className="gap-1 flex items-center">
       <Users className="h-4 w-4 text-sky-400" /> Rankings
     </Link>
   </Button>
