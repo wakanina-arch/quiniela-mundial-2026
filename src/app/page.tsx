@@ -30,6 +30,7 @@ interface PartidoReal {
   estadio: string
   ciudad: string
   pais: string
+  timestamp?: number
 }
 
 const BANDERAS: Record<string, string> = {
@@ -47,93 +48,96 @@ const BANDERAS: Record<string, string> = {
   "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦"
 }
 
-// DATOS REALES DEL MUNDIAL 2026 SEGÚN FIFA
-const PROXIMOS_PARTIDOS: PartidoReal[] = [
+// TODOS LOS PARTIDOS DEL MUNDIAL (para referencia)
+const TODOS_LOS_PARTIDOS: PartidoReal[] = [
   // Partidos ya jugados (resultados reales)
   {
     id: 1, grupo: "A", local: "México", visitante: "Sudáfrica",
     golesLocal: 2, golesVisitante: 0, jugado: true,
-    fecha: "11/06/2026", hora: "13:00", estadio: "Estadio Azteca", ciudad: "Ciudad de México", pais: "México"
+    fecha: "2026-06-11", hora: "13:00", estadio: "Estadio Azteca", ciudad: "Ciudad de México", pais: "México",
+    timestamp: new Date(2026, 5, 11, 13, 0).getTime()
   },
   {
     id: 2, grupo: "A", local: "Corea del Sur", visitante: "República Checa",
     golesLocal: 2, golesVisitante: 1, jugado: true,
-    fecha: "11/06/2026", hora: "20:00", estadio: "Estadio Akron", ciudad: "Guadalajara", pais: "México"
+    fecha: "2026-06-11", hora: "20:00", estadio: "Estadio Akron", ciudad: "Guadalajara", pais: "México",
+    timestamp: new Date(2026, 5, 11, 20, 0).getTime()
   },
   {
     id: 3, grupo: "B", local: "Canadá", visitante: "Bosnia y H.",
     golesLocal: 1, golesVisitante: 1, jugado: true,
-    fecha: "12/06/2026", hora: "15:00", estadio: "BMO Field", ciudad: "Toronto", pais: "Canadá"
+    fecha: "2026-06-12", hora: "15:00", estadio: "BMO Field", ciudad: "Toronto", pais: "Canadá",
+    timestamp: new Date(2026, 5, 12, 15, 0).getTime()
   },
   {
     id: 4, grupo: "D", local: "Estados Unidos", visitante: "Paraguay",
     golesLocal: 4, golesVisitante: 1, jugado: true,
-    fecha: "12/06/2026", hora: "18:00", estadio: "SoFi Stadium", ciudad: "Los Ángeles", pais: "EEUU"
+    fecha: "2026-06-12", hora: "18:00", estadio: "SoFi Stadium", ciudad: "Los Ángeles", pais: "EEUU",
+    timestamp: new Date(2026, 5, 12, 18, 0).getTime()
   },
   // Partidos de hoy - 13 de junio
   {
     id: 5, grupo: "B", local: "Catar", visitante: "Suiza",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "13/06/2026", hora: "15:00", estadio: "Levi's Stadium", ciudad: "San Francisco", pais: "EEUU"
+    fecha: "2026-06-13", hora: "15:00", estadio: "Levi's Stadium", ciudad: "San Francisco", pais: "EEUU",
+    timestamp: new Date(2026, 5, 13, 15, 0).getTime()
   },
   {
     id: 6, grupo: "C", local: "Brasil", visitante: "Marruecos",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "13/06/2026", hora: "18:00", estadio: "MetLife Stadium", ciudad: "New Jersey", pais: "EEUU"
+    fecha: "2026-06-13", hora: "18:00", estadio: "MetLife Stadium", ciudad: "New Jersey", pais: "EEUU",
+    timestamp: new Date(2026, 5, 13, 18, 0).getTime()
   },
   {
     id: 7, grupo: "C", local: "Haití", visitante: "Escocia",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "13/06/2026", hora: "21:00", estadio: "Gillette Stadium", ciudad: "Boston", pais: "EEUU"
+    fecha: "2026-06-13", hora: "21:00", estadio: "Gillette Stadium", ciudad: "Boston", pais: "EEUU",
+    timestamp: new Date(2026, 5, 13, 21, 0).getTime()
   },
   // Partidos de mañana - 14 de junio
   {
     id: 8, grupo: "D", local: "Australia", visitante: "Turquía",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "14/06/2026", hora: "00:00", estadio: "BC Place", ciudad: "Vancouver", pais: "Canadá"
+    fecha: "2026-06-14", hora: "00:00", estadio: "BC Place", ciudad: "Vancouver", pais: "Canadá",
+    timestamp: new Date(2026, 5, 14, 0, 0).getTime()
   },
   {
     id: 9, grupo: "E", local: "Alemania", visitante: "Curazao",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "14/06/2026", hora: "12:00", estadio: "NRG Stadium", ciudad: "Houston", pais: "EEUU"
+    fecha: "2026-06-14", hora: "12:00", estadio: "NRG Stadium", ciudad: "Houston", pais: "EEUU",
+    timestamp: new Date(2026, 5, 14, 12, 0).getTime()
   },
   {
     id: 10, grupo: "F", local: "Países Bajos", visitante: "Japón",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "14/06/2026", hora: "15:00", estadio: "AT&T Stadium", ciudad: "Dallas", pais: "EEUU"
+    fecha: "2026-06-14", hora: "15:00", estadio: "AT&T Stadium", ciudad: "Dallas", pais: "EEUU",
+    timestamp: new Date(2026, 5, 14, 15, 0).getTime()
   },
   {
     id: 11, grupo: "E", local: "Costa de Marfil", visitante: "Ecuador",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "14/06/2026", hora: "19:00", estadio: "Lincoln Financial Field", ciudad: "Philadelphia", pais: "EEUU"
+    fecha: "2026-06-14", hora: "19:00", estadio: "Lincoln Financial Field", ciudad: "Philadelphia", pais: "EEUU",
+    timestamp: new Date(2026, 5, 14, 19, 0).getTime()
   },
   {
     id: 12, grupo: "F", local: "Suecia", visitante: "Túnez",
     golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "14/06/2026", hora: "20:00", estadio: "Estadio BBVA", ciudad: "Monterrey", pais: "México"
-  },
-  // Próximos partidos - 15 de junio
-  {
-    id: 13, grupo: "H", local: "España", visitante: "Cabo Verde",
-    golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "15/06/2026", hora: "12:00", estadio: "Mercedes-Benz Stadium", ciudad: "Atlanta", pais: "EEUU"
-  },
-  {
-    id: 14, grupo: "G", local: "Bélgica", visitante: "Egipto",
-    golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "15/06/2026", hora: "12:00", estadio: "Lumen Field", ciudad: "Seattle", pais: "EEUU"
-  },
-  {
-    id: 15, grupo: "H", local: "Arabia Saudita", visitante: "Uruguay",
-    golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "15/06/2026", hora: "18:00", estadio: "Hard Rock Stadium", ciudad: "Miami", pais: "EEUU"
-  },
-  {
-    id: 16, grupo: "G", local: "Irán", visitante: "Nueva Zelanda",
-    golesLocal: 0, golesVisitante: 0, jugado: false,
-    fecha: "15/06/2026", hora: "18:00", estadio: "SoFi Stadium", ciudad: "Los Ángeles", pais: "EEUU"
+    fecha: "2026-06-14", hora: "20:00", estadio: "Estadio BBVA", ciudad: "Monterrey", pais: "México",
+    timestamp: new Date(2026, 5, 14, 20, 0).getTime()
   }
 ]
+
+// Función para obtener la fecha actual en formato YYYY-MM-DD
+const obtenerFechaHoy = (): string => {
+  const hoy = new Date()
+  return hoy.toISOString().split('T')[0]
+}
+
+// Filtrar partidos del día actual
+const obtenerPartidosDelDia = (): PartidoReal[] => {
+  const fechaHoy = obtenerFechaHoy()
+  return TODOS_LOS_PARTIDOS.filter(p => p.fecha === fechaHoy)
+}
 
 const GRUPOS_EQUIPOS = [
   { id: "A", equipos: ["México", "Corea del Sur", "República Checa", "Sudáfrica"] },
@@ -185,8 +189,12 @@ export default function Home() {
   const [grupos, setGrupos] = useState<any[]>([])
   const [partidosReales, setPartidosReales] = useState<PartidoReal[]>([])
   const [cargando, setCargando] = useState(true)
+  const [partidosHoy, setPartidosHoy] = useState<PartidoReal[]>([])
 
   useEffect(() => {
+    // Cargar partidos del día
+    setPartidosHoy(obtenerPartidosDelDia())
+    
     const saved = localStorage.getItem("resultadosReales")
     if (saved) {
       const parsed = JSON.parse(saved)
@@ -218,8 +226,7 @@ export default function Home() {
       })
     })
 
-    // Primero agregar resultados de partidos ya jugados
-    const partidosConResultados = [...PROXIMOS_PARTIDOS.filter(p => p.jugado), ...partidosReales]
+    const partidosConResultados = [...TODOS_LOS_PARTIDOS.filter(p => p.jugado), ...partidosReales]
     
     partidosConResultados.forEach(partido => {
       if (!partido.jugado) return
@@ -271,6 +278,12 @@ export default function Home() {
     setGrupoAbierto(grupoAbierto === grupo ? null : grupo)
   }
 
+  // Formatear fecha para mostrar
+  const formatearFecha = (fechaISO: string) => {
+    const fecha = new Date(fechaISO)
+    return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+  }
+
   if (cargando) {
     return (
       <div className="flex min-h-screen bg-slate-950 items-center justify-center">
@@ -310,7 +323,7 @@ export default function Home() {
         <section className="w-full py-12 bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800 text-center">
           <div className="container px-4 mx-auto max-w-4xl">
             <div className="flex items-center justify-center gap-3 mb-2">
-              <Trophy className="h-10 w-10 text-blue-500 animate-pulse" />
+              <Trophy className="h-10 w-10 text-yellow-500 animate-pulse" />
               <h1 className="text-4xl font-black tracking-tight sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-white to-sky-400">
                 Quiniela Mundialista 2026
               </h1>
@@ -328,55 +341,63 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SOLO PARTIDOS DEL DÍA */}
         <section className="w-full py-10 bg-slate-950 px-4 border-b border-slate-900">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-sky-400 flex items-center gap-2 mb-6">
-              <Tv className="h-4 w-4" /> PRÓXIMOS PARTIDOS
+            <h2 className="text-sm font-bold uppercase tracking-widest text-green-400 flex items-center gap-2 mb-6">
+              <Calendar className="h-4 w-4" /> PARTIDOS DE HOY - {new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
             </h2>
             
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {PROXIMOS_PARTIDOS.map((partido) => (
-                <div key={partido.id} className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-lg">
-                  <div className="p-4 bg-slate-950/40 border-b border-slate-800">
-                    <div className="text-center font-bold text-sky-400 text-sm">
-                      Grupo {partido.grupo}
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center justify-between gap-3 text-center font-bold text-base">
-                      <div className="flex-1 text-right">
-                        <span className="text-lg mr-1">{BANDERAS[partido.local] || "🏳️"}</span>
-                        <span className="text-slate-100">{partido.local}</span>
+            {partidosHoy.length === 0 ? (
+              <div className="text-center text-slate-400 py-12">
+                <Trophy className="h-12 w-12 text-slate-700 mx-auto mb-3" />
+                <p>No hay partidos programados para hoy</p>
+                <p className="text-sm mt-2">¡Disfruta del descanso!</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {partidosHoy.map((partido) => (
+                  <div key={partido.id} className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-lg">
+                    <div className="p-4 bg-slate-950/40 border-b border-slate-800">
+                      <div className="text-center font-bold text-sky-400 text-sm">
+                        Grupo {partido.grupo}
                       </div>
-                      {partido.jugado ? (
-                        <div className="text-yellow-500 font-black text-lg px-2 py-1 bg-slate-800 rounded">
-                          {partido.golesLocal} - {partido.golesVisitante}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between gap-3 text-center font-bold text-base">
+                        <div className="flex-1 text-right">
+                          <span className="text-lg mr-1">{BANDERAS[partido.local] || "🏳️"}</span>
+                          <span className="text-slate-100">{partido.local}</span>
                         </div>
-                      ) : (
-                        <div className="text-yellow-500 font-black text-xs px-2 py-1 bg-slate-800 rounded">VS</div>
+                        {partido.jugado ? (
+                          <div className="text-yellow-500 font-black text-lg px-2 py-1 bg-slate-800 rounded">
+                            {partido.golesLocal} - {partido.golesVisitante}
+                          </div>
+                        ) : (
+                          <div className="text-yellow-500 font-black text-xs px-2 py-1 bg-slate-800 rounded">VS</div>
+                        )}
+                        <div className="flex-1 text-left">
+                          <span className="text-lg mr-1">{BANDERAS[partido.visitante] || "🏳️"}</span>
+                          <span className="text-slate-100">{partido.visitante}</span>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-center text-xs text-slate-400 flex flex-wrap justify-center gap-2">
+                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora} ET</span>
+                      </div>
+                      <div className="mt-2 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {partido.estadio}, {partido.ciudad} ({partido.pais})
+                      </div>
+                      {partido.jugado && (
+                        <div className="mt-2 text-center text-[10px] text-green-400">
+                          ✓ Partido finalizado
+                        </div>
                       )}
-                      <div className="flex-1 text-left">
-                        <span className="text-lg mr-1">{BANDERAS[partido.visitante] || "🏳️"}</span>
-                        <span className="text-slate-100">{partido.visitante}</span>
-                      </div>
                     </div>
-                    <div className="mt-3 text-center text-xs text-slate-400 flex flex-wrap justify-center gap-2">
-                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {partido.fecha}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora} ET</span>
-                    </div>
-                    <div className="mt-2 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {partido.estadio}, {partido.ciudad} ({partido.pais})
-                    </div>
-                    {partido.jugado && (
-                      <div className="mt-2 text-center text-[10px] text-green-400">
-                        ✓ Partido finalizado
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
