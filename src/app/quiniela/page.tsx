@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Trophy, LayoutDashboard, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, Users, Star, Newspaper, ArrowLeft, RefreshCw } from "lucide-react"
+import { Trophy, LayoutDashboard, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, Users, Star, Newspaper, ArrowLeft, X, CreditCard, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -36,6 +37,7 @@ interface ApuestaFinalista {
   aceptada: boolean
 }
 
+// PARTIDOS DEL MUNDIAL
 const PARTIDOS: Partido[] = [
   {
     id: "1", local: "Catar", visitante: "Suiza",
@@ -76,10 +78,15 @@ const esPartidoHoy = (timestamp: number): boolean => {
 }
 
 export default function QuinielaPage() {
+  const router = useRouter()
   const [apuestas, setApuestas] = useState<Record<string, Apuesta>>({})
   const [apuestaFinalista, setApuestaFinalista] = useState<ApuestaFinalista>({ primero: "", segundo: "", aceptada: false })
   const [mostrarReglas, setMostrarReglas] = useState(false)
-  const [actualizando, setActualizando] = useState(false)
+  const [mostrarModalResumen, setMostrarModalResumen] = useState(false)
+  const [mostrarModalRegistro, setMostrarModalRegistro] = useState(false)
+  const [nombreRegistro, setNombreRegistro] = useState("")
+  const [emailRegistro, setEmailRegistro] = useState("")
+  const [errorRegistro, setErrorRegistro] = useState("")
 
   useEffect(() => {
     const saved = localStorage.getItem("quiniela_apuestas_v2")
@@ -178,12 +185,7 @@ export default function QuinielaPage() {
       [partidoId]: { ...prev[partidoId], aceptada: true } 
     }))
     
-    const tipo = getTipoApuesta(apuesta)
-    if (tipo.showMessage) {
-      alert(`✅ Apuesta aceptada: ${tipo.icono} ${tipo.texto} | ${tipo.costo.toFixed(2)}€`)
-    } else if (tieneGoles) {
-      alert(`✅ Apuesta de marcador aceptada`)
-    }
+    // SIN ALERT - eliminado
     guardarLocal()
   }
 
@@ -228,17 +230,77 @@ export default function QuinielaPage() {
     return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
   }
 
-  const actualizarDatos = () => {
-    setActualizando(true)
-    setTimeout(() => {
-      guardarLocal()
-      setActualizando(false)
-    }, 500)
+  // Calcular total de apuestas aceptadas
+  const calcularTotalApuestas = () => {
+    let total = 0
+    Object.values(apuestas).forEach(apuesta => {
+      if (apuesta.aceptada) {
+        const seleccionadas = [apuesta.L, apuesta.E, apuesta.V].filter(Boolean).length
+        total += seleccionadas * 0.50
+        if (apuesta.golesLocal !== "" || apuesta.golesVisita !== "") total += 0.50
+      }
+    })
+    if (apuestaFinalista.aceptada) total += 1.00
+    return total
   }
+
+  const generarNumeroJugador = () => {
+    return Math.floor(Math.random() * 900000) + 100000
+  }
+
+  const handleRegistro = () => {
+    if (!nombreRegistro.trim()) {
+      setErrorRegistro("Ingresa tu nombre")
+      return
+    }
+    if (!emailRegistro.trim() || !emailRegistro.includes("@")) {
+      setErrorRegistro("Ingresa un email válido")
+      return
+    }
+    
+    const numeroJugador = generarNumeroJugador()
+    const usuario = {
+      id: Date.now(),
+      nombre: nombreRegistro.trim(),
+      email: emailRegistro.trim(),
+      numeroJugador: numeroJugador,
+      fechaRegistro: new Date().toISOString()
+    }
+    
+    localStorage.setItem("quiniela_usuario", JSON.stringify(usuario))
+    localStorage.setItem(`jugador_${numeroJugador}`, JSON.stringify(usuario))
+    
+    setMostrarModalRegistro(false)
+    setMostrarModalResumen(true)
+  }
+
+  const handleValidarApuestas = () => {
+    const total = calcularTotalApuestas()
+    if (total === 0) {
+      alert("⚠️ No hay apuestas aceptadas para validar")
+      return
+    }
+    
+    const usuarioExistente = localStorage.getItem("quiniela_usuario")
+    if (usuarioExistente) {
+      setMostrarModalResumen(true)
+    } else {
+      setMostrarModalRegistro(true)
+    }
+  }
+
+  const handlePagar = () => {
+    const total = calcularTotalApuestas()
+    // Aquí irá la integración con PayPal
+    // Por ahora mostramos un modal de preparación
+    alert(`🚀 Preparando pago de ${total.toFixed(2)}€ con PayPal...\n\n(Próximamente: integración completa)`)
+  }
+
+  const totalApuestas = calcularTotalApuestas()
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      {/* HEADER unificado con el mismo estilo que historial, rankings y noticias */}
+      {/* HEADER */}
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <Link href="/" className="text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
@@ -247,51 +309,40 @@ export default function QuinielaPage() {
           <Trophy className="h-5 w-5 text-yellow-500" />
           Quiniela de Apuestas
         </h1>
-        <button 
-          onClick={actualizarDatos}
-          disabled={actualizando}
-          className="text-slate-400 hover:text-white transition-colors"
-        >
-          <RefreshCw className={`h-5 w-5 ${actualizando ? "animate-spin" : ""}`} />
-        </button>
+        <Button onClick={() => setMostrarReglas(!mostrarReglas)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-3 py-1.5 text-xs rounded-md gap-1">
+          <Info className="h-3 w-3" /> Reglas
+        </Button>
       </header>
 
-      <div className="p-[0.75rem] md:p-[1.5rem] pb-24">
+      {/* Navegación secundaria */}
+      <div className="flex justify-center py-2 bg-slate-900/50 border-b border-slate-800">
+        <nav className="flex gap-2 sm:gap-4 items-center">
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+            <Link href="/historial" className="gap-1 flex items-center">
+              <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
+            </Link>
+          </Button>
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
+            <Link href="/rankings" className="gap-1 flex items-center">
+              <Users className="h-3.5 w-3.5 text-sky-400" /> Rankings
+            </Link>
+          </Button>
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+            <Link href="/top4" className="gap-1 flex items-center">
+              <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
+            </Link>
+          </Button>
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+            <Link href="/noticias" className="gap-1 flex items-center">
+              <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
+            </Link>
+          </Button>
+        </nav>
+      </div>
+
+      <div className="p-[0.75rem] md:p-[1.5rem] pb-28">
         <div className="max-w-4xl mx-auto space-y-[0.75rem]">
           
-          {/* Navegación principal 
-          <div className="flex justify-center">
-            <nav className="flex gap-2 sm:gap-4 items-center bg-slate-800/50 p-2 rounded-lg">
-              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-                <Link href="/historial" className="gap-1 flex items-center">
-                  <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
-                </Link>
-              </Button>
-              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
-                <Link href="/rankings" className="gap-1 flex items-center">
-                  <Users className="h-3.5 w-3.5 text-sky-400" /> Rankings
-                </Link>
-              </Button>
-              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-                <Link href="/top4" className="gap-1 flex items-center">
-                  <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
-                </Link>
-              </Button>
-              <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-                <Link href="/noticias" className="gap-1 flex items-center">
-                  <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
-                </Link>
-              </Button>
-            </nav>
-          </div>*/}
-
-          {/* Botón reglas */}
-          <div className="flex justify-end">
-            <Button onClick={() => setMostrarReglas(!mostrarReglas)} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-3 py-1.5 text-xs rounded-md gap-1">
-              <Info className="h-3 w-3" /> Reglas
-            </Button>
-          </div>
-
           {/* Modal Reglas */}
           {mostrarReglas && (
             <div className="bg-slate-900 border-2 border-amber-500/50 p-6 rounded-xl space-y-4">
@@ -319,6 +370,98 @@ export default function QuinielaPage() {
             </div>
           )}
 
+          {/* Modal Resumen de Apuestas - Título cambiado a "Maradona # 10" */}
+          {mostrarModalResumen && (
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 rounded-xl max-w-md w-full border border-yellow-500/30">
+                <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-yellow-500" />
+                    Maradona # 10
+                  </h2>
+                  <button onClick={() => setMostrarModalResumen(false)} className="text-slate-400 hover:text-white">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="p-4 space-y-4">
+                  {/* Lista de apuestas aceptadas */}
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {Object.entries(apuestas).map(([id, apuesta]) => {
+                      if (!apuesta.aceptada) return null
+                      const partido = PARTIDOS.find(p => p.id === id)
+                      if (!partido) return null
+                      const seleccionadas = [apuesta.L, apuesta.E, apuesta.V].filter(Boolean).length
+                      const costo = seleccionadas * 0.50 + (apuesta.golesLocal !== "" || apuesta.golesVisita !== "" ? 0.50 : 0)
+                      return (
+                        <div key={id} className="bg-slate-800/50 rounded-lg p-2 text-sm">
+                          <p className="text-slate-300">{partido.local} vs {partido.visitante}</p>
+                          <p className="text-xs text-yellow-400">{costo.toFixed(2)}€</p>
+                        </div>
+                      )
+                    })}
+                    {apuestaFinalista.aceptada && (
+                      <div className="bg-slate-800/50 rounded-lg p-2 text-sm">
+                        <p className="text-slate-300">Finalistas: {apuestaFinalista.primero} vs {apuestaFinalista.segundo}</p>
+                        <p className="text-xs text-yellow-400">1.00€</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-slate-800/50 rounded-lg p-3">
+                    <p className="text-sm text-slate-400">Total a pagar</p>
+                    <p className="text-3xl font-black text-yellow-500">{totalApuestas.toFixed(2)}€</p>
+                  </div>
+                  <Button onClick={handlePagar} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3">
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Pagar con PayPal
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal Registro */}
+          {mostrarModalRegistro && (
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 rounded-xl max-w-md w-full border border-yellow-500/30">
+                <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <UserPlus className="h-5 w-5 text-yellow-500" />
+                    Registro de Participante
+                  </h2>
+                  <button onClick={() => setMostrarModalRegistro(false)} className="text-slate-400 hover:text-white">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="p-4 space-y-4">
+                  <div>
+                    <label className="text-sm text-slate-400 block mb-1">Nombre completo</label>
+                    <Input 
+                      type="text" 
+                      placeholder="Ej. Edgar Jara"
+                      value={nombreRegistro}
+                      onChange={(e) => setNombreRegistro(e.target.value)}
+                      className="bg-slate-800 border-slate-700 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-400 block mb-1">Correo electrónico</label>
+                    <Input 
+                      type="email" 
+                      placeholder="ejemplo@correo.com"
+                      value={emailRegistro}
+                      onChange={(e) => setEmailRegistro(e.target.value)}
+                      className="bg-slate-800 border-slate-700 text-white"
+                    />
+                  </div>
+                  {errorRegistro && <p className="text-red-400 text-sm">{errorRegistro}</p>}
+                  <Button onClick={handleRegistro} className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-bold">
+                    Registrarse y Continuar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Lista de partidos */}
           <div className="space-y-4">
             {PARTIDOS.map((partido) => {
@@ -332,14 +475,12 @@ export default function QuinielaPage() {
               return (
                 <div key={partido.id} className={`bg-slate-900 rounded-xl border overflow-hidden shadow-xl transition-all ${esHoy ? 'border-slate-700 scale-[1.02]' : 'border-slate-800'}`}>
                   
-                  {/* Encabezado partido */}
                   <div className="p-3 bg-slate-950/40 border-b border-slate-800">
                     <div className="text-center font-black text-sky-400 text-sm">
                       {partido.banderaLocal} {partido.local} <span className="text-yellow-600 mx-2">VS</span> {partido.visitante} {partido.banderaVisitante}
                     </div>
                   </div>
 
-                  {/* Subtítulo con fecha, hora, estadio */}
                   <div className="px-3 pt-2">
                     <div className="flex flex-wrap justify-center gap-3 text-[0.55rem] text-slate-400">
                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {formatearFecha(partido.fecha)}</span>
@@ -354,7 +495,7 @@ export default function QuinielaPage() {
                     </div>
                   </div>
 
-                  {/* 1ra APUESTA: RESULTADO */}
+                  {/* 1ra APUESTA */}
                   <div className="relative mt-2">
                     <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden mx-3">
                       <div className="pt-2 px-3">
@@ -418,7 +559,7 @@ export default function QuinielaPage() {
                     </div>
                   </div>
 
-                  {/* 2da APUESTA: MARCADOR */}
+                  {/* 2da APUESTA */}
                   <div className="bg-slate-950/50 rounded-[0.6rem] border border-slate-800 mx-3 mt-2 mb-3">
                     <div className="border-b border-slate-800/80 p-2 text-center">
                       <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
@@ -519,7 +660,6 @@ export default function QuinielaPage() {
                           return
                         }
                         setApuestaFinalista(prev => ({ ...prev, aceptada: true }))
-                        alert(`✅ Apuesta de Finalistas aceptada: 🏆 ${apuestaFinalista.primero} vs 🥈 ${apuestaFinalista.segundo} | 1.00€`)
                         guardarLocal()
                       }} disabled={apuestaFinalista.aceptada || !apuestaFinalista.primero || !apuestaFinalista.segundo} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${apuestaFinalista.aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
                         <CheckCircle className="h-3 w-3" /> Aceptar
@@ -540,6 +680,19 @@ export default function QuinielaPage() {
           </div>
         </div>
       </div>
+
+      {/* BOTÓN FLOTANTE "VALIDAR APUESTAS" */}
+      {totalApuestas > 0 && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <Button 
+            onClick={handleValidarApuestas}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold gap-3 px-8 py-4 text-lg shadow-2xl rounded-full border border-green-500/30"
+          >
+            <CheckCircle className="h-5 w-5" />
+            Validar Apuestas ({totalApuestas.toFixed(2)}€)
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
