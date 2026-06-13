@@ -296,27 +296,27 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-50">
       <header className="px-4 lg:px-6 h-16 flex items-center justify-center border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
         <nav className="flex gap-2 sm:gap-4 items-center">
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
-            <Link href="/quiniela" className="gap-1 flex items-center">
-              <LayoutDashboard className="h-4 w-4 text-yellow-500" /> Pronósticos
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800" asChild>
-            <Link href="/leaderboard" className="gap-1 flex items-center">
-              <Users className="h-4 w-4 text-sky-400" /> Clasificación
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
-            <Link href="#" className="gap-1 flex items-center">
-              <Star className="h-4 w-4 text-purple-400" /> Top 4
-            </Link>
-          </Button>
-          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
-            <Link href="/noticias" className="gap-1 flex items-center">
-              <Newspaper className="h-4 w-4 text-green-400" /> Noticias
-            </Link>
-          </Button>
-        </nav>
+  <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
+    <Link href="/historial" className="gap-1 flex items-center">
+      <LayoutDashboard className="h-4 w-4 text-yellow-500" /> Historial
+    </Link>
+  </Button>
+  <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800" asChild>
+    <Link href="/clasificacion" className="gap-1 flex items-center">
+      <Users className="h-4 w-4 text-sky-400" /> Clasificación
+    </Link>
+  </Button>
+  <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
+    <Link href="/top4" className="gap-1 flex items-center">
+      <Star className="h-4 w-4 text-purple-400" /> Top 4
+    </Link>
+  </Button>
+  <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
+    <Link href="/noticias" className="gap-1 flex items-center">
+      <Newspaper className="h-4 w-4 text-green-400" /> Noticias
+    </Link>
+  </Button>
+</nav>
       </header>
 
       <main className="flex-1">
@@ -333,10 +333,10 @@ export default function Home() {
             </p>
             <div className="mt-6">
               <Button size="lg" className="bg-sky-600 hover:bg-sky-700 text-white gap-2 font-bold shadow-lg shadow-sky-600/10" asChild>
-                <Link href="/quiniela">
-                  Llenar mi Quiniela <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+  <Link href="/quiniela">
+    Llenar mi Quiniela <ArrowRight className="h-4 w-4" />
+  </Link>
+</Button>
             </div>
           </div>
         </section>
