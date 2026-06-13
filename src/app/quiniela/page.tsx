@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Trophy, LayoutDashboard, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, Users, Star, Newspaper } from "lucide-react"
+import { Trophy, LayoutDashboard, Calendar, MapPin, Clock, TrendingUp, Target, Info, CheckCircle, Edit, Award, Users, Star, Newspaper, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -36,7 +36,6 @@ interface ApuestaFinalista {
   aceptada: boolean
 }
 
-// PARTIDOS REALES DEL MUNDIAL
 const PARTIDOS: Partido[] = [
   {
     id: "1", local: "Catar", visitante: "Suiza",
@@ -229,289 +228,295 @@ export default function QuinielaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 p-[0.75rem] md:p-[1.5rem] pb-24">
-      <div className="max-w-4xl mx-auto space-y-[0.75rem]">
-        
-        {/* Header con navegación independiente */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[0.75rem] bg-slate-900 p-[1rem] rounded-[0.75rem] border border-slate-800 shadow-xl">
-          <div>
-            <h1 className="text-[1rem] font-bold flex items-center gap-2 text-white uppercase tracking-tight">
-              <Trophy className="h-[0.75rem] w-[0.75rem] text-yellow-500" /> QUINIELA DE APUESTAS
-            </h1>
-          </div>
-          <Button onClick={() => setMostrarReglas(!mostrarReglas)} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-[0.75rem] shadow-md gap-2 rounded-[0.5rem] text-[0.7rem] py-[0.4rem]">
-            <Info className="h-[0.7rem] w-[0.7rem]" /> Reglas
+    <div className="min-h-screen bg-slate-950 text-slate-50">
+      {/* HEADER con barra de navegación */}
+      <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
+        <Link href="/" className="text-slate-400 hover:text-white transition-colors">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <nav className="flex gap-2 sm:gap-4 items-center">
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+            <Link href="/historial" className="gap-1 flex items-center">
+              <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
+            </Link>
           </Button>
-        </div>
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
+            <Link href="/clasificacion" className="gap-1 flex items-center">
+              <Users className="h-3.5 w-3.5 text-sky-400" /> Rankings
+            </Link>
+          </Button>
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+            <Link href="/top4" className="gap-1 flex items-center">
+              <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
+            </Link>
+          </Button>
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
+            <Link href="/noticias" className="gap-1 flex items-center">
+              <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
+            </Link>
+          </Button>
+        </nav>
+        <div className="w-5"></div>
+      </header>
 
-        {/* Navegación principal */}
-        <div className="flex justify-center">
-          <nav className="flex gap-2 sm:gap-4 items-center bg-slate-800/50 p-2 rounded-lg">
-            <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-              <Link href="/historial" className="gap-1 flex items-center">
-                <LayoutDashboard className="h-3.5 w-3.5 text-yellow-500" /> Historial
-              </Link>
-            </Button>
-            <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8" asChild>
-              <Link href="/clasificacion" className="gap-1 flex items-center">
-                <Users className="h-3.5 w-3.5 text-sky-400" /> Clasificación
-              </Link>
-            </Button>
-            <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-              <Link href="/top4" className="gap-1 flex items-center">
-                <Star className="h-3.5 w-3.5 text-purple-400" /> Top 4
-              </Link>
-            </Button>
-            <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800 text-sm h-8">
-              <Link href="/noticias" className="gap-1 flex items-center">
-                <Newspaper className="h-3.5 w-3.5 text-green-400" /> Noticias
-              </Link>
-            </Button>
-          </nav>
-        </div>
-
-        {/* Modal Reglas */}
-        {mostrarReglas && (
-          <div className="bg-slate-900 border-2 border-amber-500/50 p-6 rounded-xl space-y-4">
-            <h2 className="text-sm font-black text-amber-500 uppercase flex items-center gap-1.5 border-b border-slate-800 pb-2">
-              <Trophy className="h-4 w-4" /> REGLAMENTO 2026
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
-              <div className="space-y-2 bg-slate-950/40 p-3 rounded-lg">
-                <span className="font-bold text-yellow-400">💰 APUESTA MÚLTIPLE</span>
-                <p>• Simple: 1 opción = 0.50€</p>
-                <p>• Doble: 2 opciones = 1.00€</p>
-                <p>• Triple: 3 opciones = 1.50€</p>
-                <p>• Marcador: 0.50€ por combinación</p>
-                <p>• Finalistas: 1.00€</p>
-                <p className="text-amber-400">Máximo 4 apuestas por partido (2.00€)</p>
-              </div>
-              <div className="space-y-2 bg-slate-950/40 p-3 rounded-lg">
-                <span className="font-bold text-emerald-400">🏆 PREMIOS (33% c/u)</span>
-                <p>• 1er Ganador: Mayor puntuación acumulada</p>
-                <p>• 2do Ganador: Mayor cantidad de goles</p>
-                <p>• 3er Ganador: Acierte Campeón y Subcampeón</p>
-              </div>
+      <div className="p-[0.75rem] md:p-[1.5rem] pb-24">
+        <div className="max-w-4xl mx-auto space-y-[0.75rem]">
+          
+          {/* Título y botón reglas */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[0.75rem] bg-slate-900 p-[1rem] rounded-[0.75rem] border border-slate-800 shadow-xl">
+            <div>
+              <h1 className="text-[1rem] font-bold flex items-center gap-2 text-white uppercase tracking-tight">
+                <Trophy className="h-[0.75rem] w-[0.75rem] text-yellow-500" /> QUINIELA DE APUESTAS
+              </h1>
             </div>
-            <Button onClick={() => setMostrarReglas(false)} className="w-full bg-yellow-500 text-slate-950 font-black">Cerrar</Button>
+            <Button onClick={() => setMostrarReglas(!mostrarReglas)} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-[0.75rem] shadow-md gap-2 rounded-[0.5rem] text-[0.7rem] py-[0.4rem]">
+              <Info className="h-[0.7rem] w-[0.7rem]" /> Reglas
+            </Button>
           </div>
-        )}
 
-        {/* Lista de partidos */}
-        <div className="space-y-4">
-          {PARTIDOS.map((partido) => {
-            const apuesta = apuestas[partido.id] || { L: false, E: false, V: false, golesLocal: "", golesVisita: "", aceptada: false }
-            const tipo = getTipoApuesta(apuesta)
-            const aceptada = apuesta.aceptada
-            const seleccionadas = [apuesta.L, apuesta.E, apuesta.V].filter(Boolean).length
-            const estadoTiempo = getTiempoEstado(partido.timestamp)
-            const esHoy = esPartidoHoy(partido.timestamp)
-            
-            return (
-              <div key={partido.id} className={`bg-slate-900 rounded-xl border overflow-hidden shadow-xl transition-all ${esHoy ? 'border-slate-700 scale-[1.02]' : 'border-slate-800'}`}>
-                
-                {/* Encabezado partido */}
-                <div className="p-3 bg-slate-950/40 border-b border-slate-800">
-                  <div className="text-center font-black text-sky-400 text-sm">
-                    {partido.banderaLocal} {partido.local} <span className="text-yellow-600 mx-2">VS</span> {partido.visitante} {partido.banderaVisitante}
-                  </div>
+          {/* Modal Reglas */}
+          {mostrarReglas && (
+            <div className="bg-slate-900 border-2 border-amber-500/50 p-6 rounded-xl space-y-4">
+              <h2 className="text-sm font-black text-amber-500 uppercase flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                <Trophy className="h-4 w-4" /> REGLAMENTO 2026
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+                <div className="space-y-2 bg-slate-950/40 p-3 rounded-lg">
+                  <span className="font-bold text-yellow-400">💰 APUESTA MÚLTIPLE</span>
+                  <p>• Simple: 1 opción = 0.50€</p>
+                  <p>• Doble: 2 opciones = 1.00€</p>
+                  <p>• Triple: 3 opciones = 1.50€</p>
+                  <p>• Marcador: 0.50€ por combinación</p>
+                  <p>• Finalistas: 1.00€</p>
+                  <p className="text-amber-400">Máximo 4 apuestas por partido (2.00€)</p>
                 </div>
-
-                {/* Subtítulo con fecha, hora, estadio */}
-                <div className="px-3 pt-2">
-                  <div className="flex flex-wrap justify-center gap-3 text-[0.55rem] text-slate-400">
-                    <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {formatearFecha(partido.fecha)}</span>
-                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora} ET</span>
-                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {partido.estadio}</span>
-                    <span className="text-slate-600">•</span>
-                    <span>{partido.ciudad}</span>
-                    <span className="text-slate-600">•</span>
-                    <span>{partido.pais}</span>
-                    <span className="text-slate-600">•</span>
-                    <span>Grupo {partido.grupo}</span>
-                  </div>
+                <div className="space-y-2 bg-slate-950/40 p-3 rounded-lg">
+                  <span className="font-bold text-emerald-400">🏆 PREMIOS (33% c/u)</span>
+                  <p>• 1er Ganador: Mayor puntuación acumulada</p>
+                  <p>• 2do Ganador: Mayor cantidad de goles</p>
+                  <p>• 3er Ganador: Acierte Campeón y Subcampeón</p>
                 </div>
+              </div>
+              <Button onClick={() => setMostrarReglas(false)} className="w-full bg-yellow-500 text-slate-950 font-black">Cerrar</Button>
+            </div>
+          )}
 
-                {/* 1ra APUESTA: RESULTADO */}
-                <div className="relative mt-2">
-                  <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden mx-3">
-                    <div className="pt-2 px-3">
+          {/* Lista de partidos */}
+          <div className="space-y-4">
+            {PARTIDOS.map((partido) => {
+              const apuesta = apuestas[partido.id] || { L: false, E: false, V: false, golesLocal: "", golesVisita: "", aceptada: false }
+              const tipo = getTipoApuesta(apuesta)
+              const aceptada = apuesta.aceptada
+              const seleccionadas = [apuesta.L, apuesta.E, apuesta.V].filter(Boolean).length
+              const estadoTiempo = getTiempoEstado(partido.timestamp)
+              const esHoy = esPartidoHoy(partido.timestamp)
+              
+              return (
+                <div key={partido.id} className={`bg-slate-900 rounded-xl border overflow-hidden shadow-xl transition-all ${esHoy ? 'border-slate-700 scale-[1.02]' : 'border-slate-800'}`}>
+                  
+                  {/* Encabezado partido */}
+                  <div className="p-3 bg-slate-950/40 border-b border-slate-800">
+                    <div className="text-center font-black text-sky-400 text-sm">
+                      {partido.banderaLocal} {partido.local} <span className="text-yellow-600 mx-2">VS</span> {partido.visitante} {partido.banderaVisitante}
+                    </div>
+                  </div>
+
+                  {/* Subtítulo con fecha, hora, estadio */}
+                  <div className="px-3 pt-2">
+                    <div className="flex flex-wrap justify-center gap-3 text-[0.55rem] text-slate-400">
+                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {formatearFecha(partido.fecha)}</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora} ET</span>
+                      <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {partido.estadio}</span>
+                      <span className="text-slate-600">•</span>
+                      <span>{partido.ciudad}</span>
+                      <span className="text-slate-600">•</span>
+                      <span>{partido.pais}</span>
+                      <span className="text-slate-600">•</span>
+                      <span>Grupo {partido.grupo}</span>
+                    </div>
+                  </div>
+
+                  {/* 1ra APUESTA: RESULTADO */}
+                  <div className="relative mt-2">
+                    <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden mx-3">
+                      <div className="pt-2 px-3">
+                        <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
+                          <TrendingUp className="h-3 w-3" /> 1ra. Apuesta: Resultado
+                        </span>
+                      </div>
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full opacity-70"></div>
+                      <div className="pl-3">
+                        <div className="p-3">
+                          <div className="grid grid-cols-3 gap-4 text-center max-w-sm mx-auto">
+                            <div className="flex flex-col items-center">
+                              <span className="text-[0.55rem] font-bold text-green-400 uppercase mb-1">LOCAL</span>
+                              <button onClick={() => estamparSello(partido.id, "L")} disabled={aceptada || estadoTiempo.bloqueado} className="w-[3rem] h-[3rem] rounded-full flex items-center justify-center text-[1.8rem] transition-all hover:scale-110 disabled:opacity-50 bg-slate-950">
+                                {apuesta.L ? "🌍" : "🌐"}
+                              </button>
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="text-[0.55rem] font-bold text-yellow-400 uppercase mb-1">EMPATE</span>
+                              <button onClick={() => estamparSello(partido.id, "E")} disabled={aceptada || estadoTiempo.bloqueado} className="w-[3rem] h-[3rem] rounded-full flex items-center justify-center text-[1.8rem] transition-all hover:scale-110 disabled:opacity-50 bg-slate-950">
+                                {apuesta.E ? "🌍" : "🌐"}
+                              </button>
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="text-[0.55rem] font-bold text-blue-400 uppercase mb-1">VISITA</span>
+                              <button onClick={() => estamparSello(partido.id, "V")} disabled={aceptada || estadoTiempo.bloqueado} className="w-[3rem] h-[3rem] rounded-full flex items-center justify-center text-[1.8rem] transition-all hover:scale-110 disabled:opacity-50 bg-slate-950">
+                                {apuesta.V ? "🌍" : "🌐"}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <div className="flex-1">
+                              <TiempoIndicator timestamp={partido.timestamp} />
+                              {seleccionadas > 0 && !estadoTiempo.bloqueado && !aceptada && (
+                                <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
+                                  <span className="text-base">{tipo.icono}</span>
+                                  <span className="text-[0.65rem] font-bold text-white">{tipo.texto}</span>
+                                  <span className="text-[0.7rem] font-black text-yellow-400">{tipo.costo.toFixed(2)}€</span>
+                                </div>
+                              )}
+                              {aceptada && (
+                                <div className="flex items-center gap-2 bg-emerald-900/50 px-2 py-1 rounded-md w-fit mt-1">
+                                  <span className="text-base">✓</span>
+                                  <span className="text-[0.65rem] font-bold text-emerald-400">Apuesta registrada</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <button onClick={() => aceptarApuesta(partido.id)} disabled={aceptada || estadoTiempo.bloqueado || (seleccionadas === 0 && apuesta.golesLocal === "" && apuesta.golesVisita === "")} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
+                                <CheckCircle className="h-3 w-3" /> Aceptar
+                              </button>
+                              <button onClick={() => editarApuesta(partido.id)} disabled={!aceptada || estadoTiempo.bloqueado} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
+                                <Edit className="h-3 w-3" /> Editar
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2da APUESTA: MARCADOR */}
+                  <div className="bg-slate-950/50 rounded-[0.6rem] border border-slate-800 mx-3 mt-2 mb-3">
+                    <div className="border-b border-slate-800/80 p-2 text-center">
                       <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
-                        <TrendingUp className="h-3 w-3" /> 1ra. Apuesta: Resultado
+                        <Target className="h-3 w-3" /> 2da. Apuesta: Marcador (0.50€)
                       </span>
                     </div>
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full opacity-70"></div>
-                    <div className="pl-3">
-                      <div className="p-3">
-                        <div className="grid grid-cols-3 gap-4 text-center max-w-sm mx-auto">
-                          <div className="flex flex-col items-center">
-                            <span className="text-[0.55rem] font-bold text-green-400 uppercase mb-1">LOCAL</span>
-                            <button onClick={() => estamparSello(partido.id, "L")} disabled={aceptada || estadoTiempo.bloqueado} className="w-[3rem] h-[3rem] rounded-full flex items-center justify-center text-[1.8rem] transition-all hover:scale-110 disabled:opacity-50 bg-slate-950">
-                              {apuesta.L ? "🌍" : "🌐"}
-                            </button>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-[0.55rem] font-bold text-yellow-400 uppercase mb-1">EMPATE</span>
-                            <button onClick={() => estamparSello(partido.id, "E")} disabled={aceptada || estadoTiempo.bloqueado} className="w-[3rem] h-[3rem] rounded-full flex items-center justify-center text-[1.8rem] transition-all hover:scale-110 disabled:opacity-50 bg-slate-950">
-                              {apuesta.E ? "🌍" : "🌐"}
-                            </button>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-[0.55rem] font-bold text-blue-400 uppercase mb-1">VISITA</span>
-                            <button onClick={() => estamparSello(partido.id, "V")} disabled={aceptada || estadoTiempo.bloqueado} className="w-[3rem] h-[3rem] rounded-full flex items-center justify-center text-[1.8rem] transition-all hover:scale-110 disabled:opacity-50 bg-slate-950">
-                              {apuesta.V ? "🌍" : "🌐"}
-                            </button>
-                          </div>
+                    
+                    <div className="p-3">
+                      <div className="flex items-center justify-center gap-4 max-w-xs mx-auto">
+                        <div className="text-center">
+                          <label className="text-[0.55rem] font-bold text-green-400 uppercase block">{partido.local.split(' ')[0]}</label>
+                          <Input type="text" inputMode="numeric" maxLength={2} placeholder="0" value={apuesta.golesLocal} onChange={(e) => handleGoles(partido.id, "golesLocal", e.target.value)} disabled={aceptada || estadoTiempo.bloqueado} className="bg-slate-950 border-slate-800 text-center text-[0.9rem] font-black text-white h-[2.2rem] rounded-[0.5rem] p-0 w-14 mx-auto disabled:opacity-50" />
+                        </div>
+                        <div className="text-slate-600 font-bold text-[0.8rem]">X</div>
+                        <div className="text-center">
+                          <label className="text-[0.55rem] font-bold text-blue-400 uppercase block">{partido.visitante.split(' ')[0]}</label>
+                          <Input type="text" inputMode="numeric" maxLength={2} placeholder="0" value={apuesta.golesVisita} onChange={(e) => handleGoles(partido.id, "golesVisita", e.target.value)} disabled={aceptada || estadoTiempo.bloqueado} className="bg-slate-950 border-slate-800 text-center text-[0.9rem] font-black text-white h-[2.2rem] rounded-[0.5rem] p-0 w-14 mx-auto disabled:opacity-50" />
                         </div>
                       </div>
-                      <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <div className="flex-1">
-                            <TiempoIndicator timestamp={partido.timestamp} />
-                            {seleccionadas > 0 && !estadoTiempo.bloqueado && !aceptada && (
-                              <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
-                                <span className="text-base">{tipo.icono}</span>
-                                <span className="text-[0.65rem] font-bold text-white">{tipo.texto}</span>
-                                <span className="text-[0.7rem] font-black text-yellow-400">{tipo.costo.toFixed(2)}€</span>
-                              </div>
-                            )}
-                            {aceptada && (
-                              <div className="flex items-center gap-2 bg-emerald-900/50 px-2 py-1 rounded-md w-fit mt-1">
-                                <span className="text-base">✓</span>
-                                <span className="text-[0.65rem] font-bold text-emerald-400">Apuesta registrada</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <button onClick={() => aceptarApuesta(partido.id)} disabled={aceptada || estadoTiempo.bloqueado || (seleccionadas === 0 && apuesta.golesLocal === "" && apuesta.golesVisita === "")} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
-                              <CheckCircle className="h-3 w-3" /> Aceptar
-                            </button>
-                            <button onClick={() => editarApuesta(partido.id)} disabled={!aceptada || estadoTiempo.bloqueado} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
-                              <Edit className="h-3 w-3" /> Editar
-                            </button>
-                          </div>
+                    </div>
+
+                    <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex-1">
+                          <TiempoIndicator timestamp={partido.timestamp} />
+                          {(apuesta.golesLocal !== "" || apuesta.golesVisita !== "") && !estadoTiempo.bloqueado && !aceptada && (
+                            <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
+                              <span className="text-base">⚽</span>
+                              <span className="text-[0.65rem] font-bold text-white">Marcador</span>
+                              <span className="text-[0.7rem] font-black text-yellow-400">0.50€</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              )
+            })}
+          </div>
 
-                {/* 2da APUESTA: MARCADOR */}
-                <div className="bg-slate-950/50 rounded-[0.6rem] border border-slate-800 mx-3 mt-2 mb-3">
-                  <div className="border-b border-slate-800/80 p-2 text-center">
-                    <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
-                      <Target className="h-3 w-3" /> 2da. Apuesta: Marcador (0.50€)
-                    </span>
-                  </div>
-                  
-                  <div className="p-3">
-                    <div className="flex items-center justify-center gap-4 max-w-xs mx-auto">
-                      <div className="text-center">
-                        <label className="text-[0.55rem] font-bold text-green-400 uppercase block">{partido.local.split(' ')[0]}</label>
-                        <Input type="text" inputMode="numeric" maxLength={2} placeholder="0" value={apuesta.golesLocal} onChange={(e) => handleGoles(partido.id, "golesLocal", e.target.value)} disabled={aceptada || estadoTiempo.bloqueado} className="bg-slate-950 border-slate-800 text-center text-[0.9rem] font-black text-white h-[2.2rem] rounded-[0.5rem] p-0 w-14 mx-auto disabled:opacity-50" />
-                      </div>
-                      <div className="text-slate-600 font-bold text-[0.8rem]">X</div>
-                      <div className="text-center">
-                        <label className="text-[0.55rem] font-bold text-blue-400 uppercase block">{partido.visitante.split(' ')[0]}</label>
-                        <Input type="text" inputMode="numeric" maxLength={2} placeholder="0" value={apuesta.golesVisita} onChange={(e) => handleGoles(partido.id, "golesVisita", e.target.value)} disabled={aceptada || estadoTiempo.bloqueado} className="bg-slate-950 border-slate-800 text-center text-[0.9rem] font-black text-white h-[2.2rem] rounded-[0.5rem] p-0 w-14 mx-auto disabled:opacity-50" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <div className="flex-1">
-                        <TiempoIndicator timestamp={partido.timestamp} />
-                        {(apuesta.golesLocal !== "" || apuesta.golesVisita !== "") && !estadoTiempo.bloqueado && !aceptada && (
-                          <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
-                            <span className="text-base">⚽</span>
-                            <span className="text-[0.65rem] font-bold text-white">Marcador</span>
-                            <span className="text-[0.7rem] font-black text-yellow-400">0.50€</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {/* 3ra APUESTA: FINALISTAS */}
+          <div className="relative mt-4">
+            <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden">
+              <div className="pt-2 px-3">
+                <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
+                  <Award className="h-3 w-3" /> 3ra. Apuesta: Finalistas de Copa (1.00€)
+                </span>
               </div>
-            )
-          })}
-        </div>
-
-        {/* 3ra APUESTA: FINALISTAS */}
-        <div className="relative mt-4">
-          <div className="bg-slate-800/30 rounded-r-lg rounded-l-none overflow-hidden">
-            <div className="pt-2 px-3">
-              <span className="text-[0.65rem] font-black tracking-widest uppercase text-yellow-500 flex items-center justify-center gap-1">
-                <Award className="h-3 w-3" /> 3ra. Apuesta: Finalistas de Copa (1.00€)
-              </span>
-            </div>
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full opacity-70"></div>
-            <div className="pl-3">
-              <div className="p-3">
-                <div className="flex items-center justify-center gap-6 flex-wrap">
-                  <div className="text-center">
-                    <span className="text-[0.55rem] font-bold text-green-400 uppercase block mb-2">🏆 CAMPEÓN</span>
-                    <Input 
-                      type="text" 
-                      placeholder="Ej. Brasil" 
-                      value={apuestaFinalista.primero} 
-                      onChange={(e) => setApuestaFinalista(prev => ({ ...prev, primero: e.target.value }))}
-                      disabled={apuestaFinalista.aceptada}
-                      className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50"
-                    />
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[0.55rem] font-bold text-blue-400 uppercase block mb-2">🥈 SUBCAMPEÓN</span>
-                    <Input 
-                      type="text" 
-                      placeholder="Ej. Argentina" 
-                      value={apuestaFinalista.segundo} 
-                      onChange={(e) => setApuestaFinalista(prev => ({ ...prev, segundo: e.target.value }))}
-                      disabled={apuestaFinalista.aceptada}
-                      className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-start gap-1 text-slate-400 text-[0.55rem]">
-                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                      ✅ Apuesta abierta (válida hasta el inicio del Mundial)
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-500 to-amber-600 rounded-full opacity-70"></div>
+              <div className="pl-3">
+                <div className="p-3">
+                  <div className="flex items-center justify-center gap-6 flex-wrap">
+                    <div className="text-center">
+                      <span className="text-[0.55rem] font-bold text-green-400 uppercase block mb-2">🏆 CAMPEÓN</span>
+                      <Input 
+                        type="text" 
+                        placeholder="Ej. Brasil" 
+                        value={apuestaFinalista.primero} 
+                        onChange={(e) => setApuestaFinalista(prev => ({ ...prev, primero: e.target.value }))}
+                        disabled={apuestaFinalista.aceptada}
+                        className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50"
+                      />
                     </div>
-                    {apuestaFinalista.aceptada && (
-                      <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
-                        <span className="text-base">🏆</span>
-                        <span className="text-[0.65rem] font-bold text-white">Finalistas</span>
-                        <span className="text-[0.7rem] font-black text-yellow-400">1.00€</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => {
-                      if (!apuestaFinalista.primero || !apuestaFinalista.segundo) {
-                        alert("⚠️ Debes escribir un CAMPEÓN y un SUBCAMPEÓN")
-                        return
-                      }
-                      setApuestaFinalista(prev => ({ ...prev, aceptada: true }))
-                      alert(`✅ Apuesta de Finalistas aceptada: 🏆 ${apuestaFinalista.primero} vs 🥈 ${apuestaFinalista.segundo} | 1.00€`)
-                      guardarLocal()
-                    }} disabled={apuestaFinalista.aceptada || !apuestaFinalista.primero || !apuestaFinalista.segundo} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${apuestaFinalista.aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
-                      <CheckCircle className="h-3 w-3" /> Aceptar
-                    </button>
-                    <button onClick={() => setApuestaFinalista(prev => ({ ...prev, aceptada: false }))} disabled={!apuestaFinalista.aceptada} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
-                      <Edit className="h-3 w-3" /> Editar
-                    </button>
+                    <div className="text-center">
+                      <span className="text-[0.55rem] font-bold text-blue-400 uppercase block mb-2">🥈 SUBCAMPEÓN</span>
+                      <Input 
+                        type="text" 
+                        placeholder="Ej. Argentina" 
+                        value={apuestaFinalista.segundo} 
+                        onChange={(e) => setApuestaFinalista(prev => ({ ...prev, segundo: e.target.value }))}
+                        disabled={apuestaFinalista.aceptada}
+                        className="w-36 text-center bg-slate-950 border-slate-800 text-white h-[2.2rem] rounded-[0.5rem] text-sm disabled:opacity-50"
+                      />
+                    </div>
                   </div>
                 </div>
-                {apuestaFinalista.aceptada && (
-                  <div className="text-center text-emerald-400 text-[0.55rem] mt-1">
-                    ✓ Apuesta registrada: {apuestaFinalista.primero} vs {apuestaFinalista.segundo}
+
+                <div className="border-t border-slate-700/50 bg-slate-800/40 p-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-start gap-1 text-slate-400 text-[0.55rem]">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        ✅ Apuesta abierta (válida hasta el inicio del Mundial)
+                      </div>
+                      {apuestaFinalista.aceptada && (
+                        <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-md w-fit mt-1">
+                          <span className="text-base">🏆</span>
+                          <span className="text-[0.65rem] font-bold text-white">Finalistas</span>
+                          <span className="text-[0.7rem] font-black text-yellow-400">1.00€</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => {
+                        if (!apuestaFinalista.primero || !apuestaFinalista.segundo) {
+                          alert("⚠️ Debes escribir un CAMPEÓN y un SUBCAMPEÓN")
+                          return
+                        }
+                        setApuestaFinalista(prev => ({ ...prev, aceptada: true }))
+                        alert(`✅ Apuesta de Finalistas aceptada: 🏆 ${apuestaFinalista.primero} vs 🥈 ${apuestaFinalista.segundo} | 1.00€`)
+                        guardarLocal()
+                      }} disabled={apuestaFinalista.aceptada || !apuestaFinalista.primero || !apuestaFinalista.segundo} className={`h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-all ${apuestaFinalista.aceptada ? "bg-emerald-800 text-emerald-200 cursor-not-allowed opacity-70" : "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"} disabled:opacity-50`}>
+                        <CheckCircle className="h-3 w-3" /> Aceptar
+                      </button>
+                      <button onClick={() => setApuestaFinalista(prev => ({ ...prev, aceptada: false }))} disabled={!apuestaFinalista.aceptada} className="h-7 px-3 text-[0.6rem] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white transition-all disabled:opacity-50">
+                        <Edit className="h-3 w-3" /> Editar
+                      </button>
+                    </div>
                   </div>
-                )}
+                  {apuestaFinalista.aceptada && (
+                    <div className="text-center text-emerald-400 text-[0.55rem] mt-1">
+                      ✓ Apuesta registrada: {apuestaFinalista.primero} vs {apuestaFinalista.segundo}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
