@@ -37,31 +37,98 @@ interface ApuestaFinalista {
   aceptada: boolean
 }
 
+// Zonas horarias por ciudad
+const getTimeZone = (ciudad: string): string => {
+  const zonas: Record<string, string> = {
+    "Los Ángeles": "America/Los_Angeles",
+    "San Francisco": "America/Los_Angeles",
+    "Seattle": "America/Los_Angeles",
+    "Denver": "America/Denver",
+    "Dallas": "America/Chicago",
+    "Houston": "America/Chicago",
+    "Chicago": "America/Chicago",
+    "New Jersey": "America/New_York",
+    "Boston": "America/New_York",
+    "Philadelphia": "America/New_York",
+    "Atlanta": "America/New_York",
+    "Miami": "America/New_York",
+    "East Rutherford": "America/New_York",
+    "Toronto": "America/Toronto",
+    "Vancouver": "America/Vancouver",
+    "CDMX": "America/Mexico_City",
+    "Ciudad de México": "America/Mexico_City",
+    "Guadalajara": "America/Mexico_City",
+    "Monterrey": "America/Mexico_City"
+  }
+  return zonas[ciudad] || "America/New_York"
+}
+
+// Función para formatear hora con conversión automática
+const formatearHoraConZona = (timestamp: number, ciudad: string): string => {
+  const fechaUTC = new Date(timestamp)
+  const zonaEstadio = getTimeZone(ciudad)
+  const zonaUsuario = Intl.DateTimeFormat().resolvedOptions().timeZone
+  
+  const horaEstadio = new Intl.DateTimeFormat('es-ES', {
+    timeZone: zonaEstadio,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(fechaUTC)
+  
+  const abrevZonaEstadio = zonaEstadio.split('/').pop() || "ET"
+  const abrevMap: Record<string, string> = {
+    "Los_Angeles": "PT", "Denver": "MT", "Chicago": "CT",
+    "New_York": "ET", "Toronto": "ET", "Vancouver": "PT",
+    "Mexico_City": "CT"
+  }
+  const abreviatura = abrevMap[abrevZonaEstadio] || "ET"
+  
+  if (zonaUsuario === zonaEstadio) {
+    return `${horaEstadio} ${abreviatura}`
+  }
+  
+  const horaUsuario = new Intl.DateTimeFormat('es-ES', {
+    timeZone: zonaUsuario,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(fechaUTC)
+  
+  const zonaUsuarioAbrev = zonaUsuario.includes("Madrid") ? "CET" : 
+                           zonaUsuario.includes("London") ? "GMT" :
+                           zonaUsuario.includes("Berlin") ? "CET" : "Local"
+  
+  return `${horaUsuario} ${zonaUsuarioAbrev} (${horaEstadio} ${abreviatura})`
+  
+}
+
+
 // TODOS LOS PARTIDOS DE LA RONDA (para cargar dinámicamente)
 const TODOS_LOS_PARTIDOS: Partido[] = [
   {
     id: "1", local: "Catar", visitante: "Suiza",
     banderaLocal: "🇶🇦", banderaVisitante: "🇨🇭",
     fecha: "2026-06-13", hora: "15:00", estadio: "Levi's Stadium", ciudad: "San Francisco", pais: "EEUU", grupo: "B",
-    timestamp: new Date(2026, 5, 13, 15, 0).getTime()
+    timestamp: new Date(Date.UTC(2026, 5, 13, 22, 0)).getTime()
   },
   {
     id: "2", local: "Brasil", visitante: "Marruecos",
     banderaLocal: "🇧🇷", banderaVisitante: "🇲🇦",
     fecha: "2026-06-13", hora: "18:00", estadio: "MetLife Stadium", ciudad: "New Jersey", pais: "EEUU", grupo: "C",
-    timestamp: new Date(2026, 5, 13, 18, 0).getTime()
+    timestamp: new Date(Date.UTC(2026, 5, 13, 22, 0)).getTime()
   },
   {
     id: "3", local: "Haití", visitante: "Escocia",
     banderaLocal: "🇭🇹", banderaVisitante: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
     fecha: "2026-06-13", hora: "21:00", estadio: "Gillette Stadium", ciudad: "Boston", pais: "EEUU", grupo: "C",
-    timestamp: new Date(2026, 5, 13, 21, 0).getTime()
+    timestamp: new Date(Date.UTC(2026, 5, 14, 1, 0)).getTime()
   },
   {
     id: "4", local: "Australia", visitante: "Turquía",
     banderaLocal: "🇦🇺", banderaVisitante: "🇹🇷",
     fecha: "2026-06-14", hora: "00:00", estadio: "BC Place", ciudad: "Vancouver", pais: "Canadá", grupo: "D",
-    timestamp: new Date(2026, 5, 14, 0, 0).getTime()
+    timestamp: new Date(Date.UTC(2026, 5, 14, 7, 0)).getTime()
   },
   {
     id: "5", local: "Alemania", visitante: "Ecuador",
@@ -576,18 +643,15 @@ export default function QuinielaPage() {
                     <div className="text-center font-black text-sky-400 text-sm">
                       {partido.banderaLocal} {partido.local} <span className="text-yellow-600 mx-2">VS</span> {partido.visitante} {partido.banderaVisitante}
                     </div>
-                    {esHoy && (
-                      <div className="text-center text-[9px] text-yellow-500 mt-0.5 font-bold">
-                        ⭐ PARTIDO ESTELAR DEL DÍA
-                      </div>
-                    )}
+                    
+                    
                   </div>
 
                   {/* Info del partido */}
                   <div className="px-3 pt-2">
                     <div className="flex flex-wrap justify-center gap-3 text-[0.55rem] text-slate-400">
                       <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {formatearFecha(partido.fecha)}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {partido.hora} ET</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatearHoraConZona(partido.timestamp, partido.ciudad)}</span>
                       <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {partido.estadio}</span>
                       <span className="text-slate-600">•</span>
                       <span>{partido.ciudad}</span>
