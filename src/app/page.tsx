@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Trophy, Users, ArrowRight, Star, LayoutDashboard, MapPin, Tv, ChevronDown, ChevronUp, Calendar, Clock } from "lucide-react"
+import { Trophy, Users, ArrowRight, Star, LayoutDashboard, MapPin, Tv, ChevronDown, ChevronUp, Calendar, Clock, Newspaper } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Equipo {
@@ -219,12 +219,9 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-50">
-      <header className="px-4 lg:px-6 h-16 flex items-center border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
-        <Link className="flex items-center justify-center gap-2 font-bold text-xl tracking-tight" href="/">
-          <Trophy className="h-6 w-6 text-yellow-500 animate-pulse" />
-          <span>Quiniela Mundialista 2026</span>
-        </Link>
-        <nav className="ml-auto flex gap-2 sm:gap-4 items-center">
+      {/* HEADER - Solo navegación centrada, sin título */}
+      <header className="px-4 lg:px-6 h-16 flex items-center justify-center border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
+        <nav className="flex gap-2 sm:gap-4 items-center">
           <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
             <Link href="/quiniela" className="gap-1 flex items-center">
               <LayoutDashboard className="h-4 w-4 text-yellow-500" /> Pronósticos
@@ -240,15 +237,23 @@ export default function Home() {
               <Star className="h-4 w-4 text-purple-400" /> Top 4
             </Link>
           </Button>
+          <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800">
+            <Link href="/noticias" className="gap-1 flex items-center">
+              <Newspaper className="h-4 w-4 text-green-400" /> Noticias
+            </Link>
+          </Button>
         </nav>
       </header>
 
       <main className="flex-1">
         <section className="w-full py-12 bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800 text-center">
           <div className="container px-4 mx-auto max-w-4xl">
-            <h1 className="text-4xl font-black tracking-tight sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-white to-sky-400">
-              Quiniela Mundialista 2026
-            </h1>
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Trophy className="h-10 w-10 text-blue-500 animate-pulse" />
+              <h1 className="text-4xl font-black tracking-tight sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-white to-sky-400">
+                Quiniela Mundialista 2026
+              </h1>
+            </div>
             <p className="text-slate-400 text-lg mt-2">
               Demuestra cuánto sabes de fútbol
             </p>
