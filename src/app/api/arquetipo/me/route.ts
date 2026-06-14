@@ -1,27 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
-// Misma estructura de usuarios que en register
-const usuarios: Record<string, { id: string; nombre: string; balones: number; balonesRugby: number; ticketsMundialista: number }> = {}
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams
-  const id = searchParams.get('id')
-  
-  if (!id || !usuarios[id]) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-  
-  const user = usuarios[id]
-  return NextResponse.json({
-    id: user.id,
-    nombre: user.nombre,
-    balones: user.balones,
-    balonesRugby: user.balonesRugby || 0,
-    ticketsMundialista: user.ticketsMundialista || 0,
-    aciertos: 0,
-    totalApuestas: 0
-  })
-}
+  try {
+    const { searchParams } = new URL(req.url)
+    const nombre = searchParams.get('nombre')
 
-// Exportar usuarios para que register pueda acceder (misma instancia)
-export { usuarios }
+    if (!nombre) {
+      return NextResponse.json({ error: 'Falta el nombre del jugador' }, { status: 400 })
+    }
+
+    const jugador = await prisma.arquetipo.findUnique({
+      where: { nombre: nombre.trim() }
+    })
+
+    if (!jugador) {
+      return NextResponse.json({ error: 'Jugador no encontrado' }, { status: 404 })
+    }
+
+    return NextResponse.json(jugador)
+  } catch (error) {
+    console.error("Error en API me:", error)
+    return NextResponse.json({ error: 'Error de servidor' }, { status: 500 })
+  }
+}
