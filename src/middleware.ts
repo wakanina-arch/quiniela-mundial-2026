@@ -3,17 +3,29 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Rutas públicas que no requieren autenticación
+  const publicPaths = ['/', '/registro', '/tutorial', '/noticias', '/rondas', '/Tclasificacion', '/rankings']
   
-  // Si intenta acceder a /quiniela directamente sin datos de apuestas pendientes
-  // redirigir a home (opcional, según necesidad)
-  if (pathname === '/quiniela') {
-    // Permitir acceso normal, no redirigir
+  if (publicPaths.includes(pathname)) {
     return NextResponse.next()
   }
-  
+
+  // Para /quiniela, permitir acceso sin cookie (se validará en cliente)
+  if (pathname === '/quiniela') {
+    return NextResponse.next()
+  }
+
+  // Para otras rutas protegidas, verificar cookie
+  const arquetipoId = request.cookies.get('arquetipoId')?.value
+
+  if (!arquetipoId && (pathname.startsWith('/ranking') || pathname.startsWith('/historial') || pathname.startsWith('/api/apuesta'))) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: []
+  matcher: ['/quiniela/:path*', '/ranking/:path*', '/historial/:path*', '/api/apuesta/:path*']
 }
