@@ -137,7 +137,7 @@ export default function Home() {
         <nav className="ml-auto flex gap-2 sm:gap-4 items-center">
           
           <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800" asChild>
-            <Link href="/ranking" className="gap-1 flex items-center"><Users className="h-4 w-4 text-sky-400" /> Rankings</Link>
+            <Link href="/ranking" className="gap-1 flex items-center"><Users className="h-4 w-4 text-sky-400" /> Ranking</Link>
           </Button>
           <Button variant="ghost" className="text-slate-200 hover:text-white hover:bg-slate-800" asChild>
             <Link href="/rondas" className="gap-1 flex items-center"><LayoutDashboard className="h-4 w-4 text-yellow-500" />Rondas</Link>
