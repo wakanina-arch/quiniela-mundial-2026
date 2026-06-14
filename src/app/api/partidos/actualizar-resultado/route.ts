@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
+// Forzar procesamiento dinámico en servidor para evitar errores en el build de Next.js
+export const dynamic = 'force-dynamic';
+
 // Función de lógica de premios (ganar balón con conversión a rugby)
 async function premiarArquetipo(arquetipoId: string, esAcierto: boolean, bonusExtra = 0) {
   const arquetipo = await prisma.arquetipo.findUnique({ where: { id: arquetipoId } })

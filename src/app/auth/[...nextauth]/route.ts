@@ -1,28 +1,36 @@
 import NextAuth, { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "@/lib/db"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // Eliminamos el PrismaAdapter para que no busque tablas inexistentes
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
   ],
+  session: {
+    strategy: "jwt", // NextAuth guardará de forma segura la sesión en una cookie cifrada
+  },
   callbacks: {
-    // Inyectamos el ID del usuario de la Base de Datos dentro del objeto de sesión de la app
-    async session({ session, user }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = user.id;
-        (session.user as any).points = (user as any).points;
+        (session.user as any).id = token.id;
+        // Aquí puedes buscar el arquetipo en la base de datos usando el email si lo necesitas:
+        // const arquetipo = await prisma.arquetipo.findUnique({ where: { email: session.user.email } })
       }
       return session;
     },
   },
   pages: {
-    signIn: "/", // Redirecciona a la raíz si requiere autenticación
+    signIn: "/",
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

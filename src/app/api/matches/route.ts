@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { isSameDay } from 'date-fns'
 
+// Forzar procesamiento dinámico en servidor
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -12,7 +15,7 @@ export async function GET(req: NextRequest) {
     })
 
     // Si se proporciona arquetipoId, obtener las apuestas del usuario para saber si ya apostó
-    let betsMap = new Map()
+    const betsMap = new Map()
     if (arquetipoId) {
       const bets = await prisma.apuesta.findMany({
         where: { arquetipoId },
@@ -25,17 +28,25 @@ export async function GET(req: NextRequest) {
     }
 
     const now = new Date()
-    const matchesWithStatus = matches.map(match => ({
-      ...match,
-      isToday: isSameDay(match.date, now),
-      hasBetResultado: betsMap.has(`${match.id}-RESULTADO`) || false,
-      hasBetMarcador: betsMap.has(`${match.id}-MARCADOR`) || false,
-      canBet: match.status === 'scheduled' && (match.date.getTime() - now.getTime()) > 20 * 60 * 1000
-    }))
+    
+    const matchesWithStatus = matches.map(match => {
+      // Forzar que la fecha sea interpretada correctamente como un objeto Date válido
+      const matchDate = new Date(match.date)
+      
+      return {
+        ...match,
+        isToday: isSameDay(matchDate, now),
+        hasBetResultado: betsMap.has(`${match.id}-RESULTADO`),
+        hasBetMarcador: betsMap.has(`${match.id}-MARCADOR`),
+        // Validación segura del tiempo restante (20 minutos)
+        canBet: match.status === 'scheduled' && (matchDate.getTime() - now.getTime()) > 20 * 60 * 1000
+      }
+    })
 
     return NextResponse.json(matchesWithStatus)
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
+    // Esto imprimirá el fallo exacto en tu terminal si Prisma no conecta
+    console.error("Error en API matches:", error)
+    return NextResponse.json({ error: 'Error interno de servidor' }, { status: 500 })
   }
 }
