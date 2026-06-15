@@ -1,52 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
-import { isSameDay } from 'date-fns'
+import { NextResponse } from "next/server"
 
-// Forzar procesamiento dinámico en servidor
-export const dynamic = 'force-dynamic';
+// Forzar que nunca se cachee
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url)
-    const arquetipoId = searchParams.get('arquetipoId')
-
-    const matches = await prisma.match.findMany({
-      orderBy: { date: 'asc' }
-    })
-
-    // Si se proporciona arquetipoId, obtener las apuestas del usuario para saber si ya apostó
-    const betsMap = new Map()
-    if (arquetipoId) {
-      const bets = await prisma.apuesta.findMany({
-        where: { arquetipoId },
-        select: { matchId: true, tipo: true }
-      })
-      bets.forEach(bet => {
-        const key = `${bet.matchId}-${bet.tipo}`
-        betsMap.set(key, true)
-      })
-    }
-
-    const now = new Date()
+    // Obtener la fecha actual
+    const hoy = new Date()
+    const hoyStr = hoy.toISOString().split('T')[0]
     
-    const matchesWithStatus = matches.map(match => {
-      // Forzar que la fecha sea interpretada correctamente como un objeto Date válido
-      const matchDate = new Date(match.date)
-      
-      return {
-        ...match,
-        isToday: isSameDay(matchDate, now),
-        hasBetResultado: betsMap.has(`${match.id}-RESULTADO`),
-        hasBetMarcador: betsMap.has(`${match.id}-MARCADOR`),
-        // Validación segura del tiempo restante (20 minutos)
-        canBet: match.status === 'scheduled' && (matchDate.getTime() - now.getTime()) > 20 * 60 * 1000
-      }
+    // Datos actualizados con fechas relativas
+    const manana = new Date(hoy)
+    manana.setDate(manana.getDate() + 1)
+    const mananaStr = manana.toISOString().split('T')[0]
+    
+    const pasado = new Date(hoy)
+    pasado.setDate(pasado.getDate() + 2)
+    const pasadoStr = pasado.toISOString().split('T')[0]
+    
+    // Generar partidos con fechas reales (hoy, mañana, pasado)
+    const PARTIDOS_DINAMICOS = [
+      { id: "1", local: "México", visitante: "Corea del Sur", banderaLocal: "🇲🇽", banderaVisitante: "🇰🇷", fecha: hoyStr, hora: "18:00", estadio: "Estadio Azteca", ciudad: "CDMX", pais: "México", grupo: "A", timestamp: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 18, 0).getTime(), estado: "scheduled" },
+      { id: "2", local: "Canadá", visitante: "Bosnia y H.", banderaLocal: "🇨🇦", banderaVisitante: "🇧🇦", fecha: hoyStr, hora: "15:00", estadio: "BMO Field", ciudad: "Toronto", pais: "Canadá", grupo: "B", timestamp: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 15, 0).getTime(), estado: "scheduled" },
+      { id: "3", local: "Estados Unidos", visitante: "Paraguay", banderaLocal: "🇺🇸", banderaVisitante: "🇵🇾", fecha: hoyStr, hora: "18:00", estadio: "SoFi Stadium", ciudad: "Los Ángeles", pais: "EEUU", grupo: "D", timestamp: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 18, 0).getTime(), estado: "scheduled" },
+      { id: "4", local: "Brasil", visitante: "Marruecos", banderaLocal: "🇧🇷", banderaVisitante: "🇲🇦", fecha: mananaStr, hora: "16:00", estadio: "Rose Bowl", ciudad: "Los Ángeles", pais: "EEUU", grupo: "C", timestamp: new Date(manana.getFullYear(), manana.getMonth(), manana.getDate(), 16, 0).getTime(), estado: "scheduled" },
+      { id: "5", local: "Alemania", visitante: "Ecuador", banderaLocal: "🇩🇪", banderaVisitante: "🇪🇨", fecha: mananaStr, hora: "12:00", estadio: "NRG Stadium", ciudad: "Houston", pais: "EEUU", grupo: "E", timestamp: new Date(manana.getFullYear(), manana.getMonth(), manana.getDate(), 12, 0).getTime(), estado: "scheduled" },
+      { id: "6", local: "Países Bajos", visitante: "Japón", banderaLocal: "🇳🇱", banderaVisitante: "🇯🇵", fecha: pasadoStr, hora: "15:00", estadio: "AT&T Stadium", ciudad: "Dallas", pais: "EEUU", grupo: "F", timestamp: new Date(pasado.getFullYear(), pasado.getMonth(), pasado.getDate(), 15, 0).getTime(), estado: "scheduled" },
+    ]
+    
+    // Cabeceras para evitar caché
+    return NextResponse.json(PARTIDOS_DINAMICOS, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
     })
-
-    return NextResponse.json(matchesWithStatus)
   } catch (error) {
-    // Esto imprimirá el fallo exacto en tu terminal si Prisma no conecta
-    console.error("Error en API matches:", error)
-    return NextResponse.json({ error: 'Error interno de servidor' }, { status: 500 })
+    console.error("Error:", error)
+    return NextResponse.json([])
   }
 }

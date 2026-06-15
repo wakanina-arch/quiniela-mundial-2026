@@ -1,0 +1,102 @@
+.
+├── backup
+│   └── ui
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── input.tsx
+│       ├── select.tsx
+│       ├── table.tsx
+│       └── tabs.tsx
+├── prisma
+│   ├── partidos.json
+│   ├── schema.prisma
+│   └── seed.ts
+├── src
+│   ├── app
+│   │   ├── Tclasificacion
+│   │   │   └── page.tsx
+│   │   ├── api
+│   │   │   ├── apuesta
+│   │   │   │   └── create
+│   │   │   ├── arquetipo
+│   │   │   │   ├── me
+│   │   │   │   └── register
+│   │   │   ├── bonus-diario
+│   │   │   │   └── route.ts
+│   │   │   ├── clasificacion
+│   │   │   │   └── route.ts
+│   │   │   ├── matches
+│   │   │   │   └── route.ts
+│   │   │   ├── partidos
+│   │   │   │   ├── actualizar-resultado
+│   │   │   │   └── route.ts
+│   │   │   └── ranking
+│   │   │       └── route.ts
+│   │   ├── auth
+│   │   │   └── [...nextauth]
+│   │   │       └── route.ts
+│   │   ├── fonts
+│   │   │   ├── GeistMonoVF.woff
+│   │   │   └── GeistVF.woff
+│   │   ├── leaderboard
+│   │   │   └── page.tsx
+│   │   ├── noticias
+│   │   │   └── page.tsx
+│   │   ├── quiniela
+│   │   │   └── page.tsx
+│   │   ├── ranking
+│   │   │   └── page.tsx
+│   │   ├── registro
+│   │   │   └── page.tsx
+│   │   ├── rondas
+│   │   │   └── page.tsx
+│   │   ├── tutorial
+│   │   │   └── page.tsx
+│   │   ├── error.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── not-found.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── ui
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── select.tsx
+│   │   │   ├── table.tsx
+│   │   │   ├── tabs.tsx
+│   │   │   └── toast.tsx
+│   │   ├── FloatingButton.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Header.tsx
+│   │   ├── Hero.tsx
+│   │   ├── LoadingSpinner.tsx
+│   │   ├── MatchCard.tsx
+│   │   └── SplashModal.tsx
+│   ├── constants
+│   │   └── banderas.ts
+│   ├── hooks
+│   │   └── usePartidosHoy.ts
+│   ├── lib
+│   │   ├── db.ts
+│   │   ├── prisma.ts
+│   │   └── utils.ts
+│   ├── types
+│   │   └── index.ts
+│   └── middleware.ts
+├── README.md
+├── estructura_proyecto.txt
+├── fix-timestamps.js
+├── middleware.ts
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── package.json.backup
+├── postcss.config.mjs
+├── prisma.config.ts
+├── tailwind.config.ts
+└── tsconfig.json
+
+35 directories, 65 files
