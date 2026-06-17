@@ -172,7 +172,7 @@ export default function RondasPage() {
       {/* HEADER */}
       <header className="border-b border-slate-800 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white">
+          <Link href="/home" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white">
             <ArrowLeft className="w-4 h-4" /> Volver
           </Link>
           <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2">
@@ -183,7 +183,7 @@ export default function RondasPage() {
             <button onClick={actualizarDatos} disabled={actualizando} className="text-slate-400 hover:text-white transition-colors">
               <RefreshCw className={`w-4 h-4 ${actualizando ? "animate-spin" : ""}`} />
             </button>
-            <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white">
+            <Link href="/home" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white">
               <LayoutDashboard className="w-4 h-4" /> Inicio
             </Link>
           </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowLeft, LayoutDashboard, ChevronDown, ChevronUp, Trophy, ArrowUp, Info } from "lucide-react"
+import { ArrowLeft, LayoutDashboard, ChevronDown, ChevronUp, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { obtenerPartidosActualizados, BANDERAS, type PartidoReal } from "@/lib/partidosMundial"
 import { obtenerRankingCompleto, obtenerDiasParaProxima, obtenerInfoCache, type PaisRanking } from "@/lib/rankingFIFA"
@@ -23,7 +23,7 @@ interface Equipo {
 }
 
 // ------------------------------------------------------------
-// GRUPOS DE EQUIPOS
+// GRUPOS DE EQUIPOS (FASE DE GRUPOS)
 // ------------------------------------------------------------
 const GRUPOS_EQUIPOS = [
   { id: "A", equipos: ["México", "Corea del Sur", "República Checa", "Sudáfrica"] },
@@ -41,7 +41,7 @@ const GRUPOS_EQUIPOS = [
 ]
 
 // ------------------------------------------------------------
-// MAPA DE BANDERAS PARA RANKING FIFA
+// BANDERAS FIFA (para ranking)
 // ------------------------------------------------------------
 const BANDERAS_FIFA: Record<string, string> = {
   "Argentina": "🇦🇷", "Francia": "🇫🇷", "España": "🇪🇸", "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
@@ -113,7 +113,6 @@ export default function TclasificacionPage() {
   const [infoCache, setInfoCache] = useState<any>({})
   const [cargando, setCargando] = useState(true)
   const [mostrarTodos, setMostrarTodos] = useState(false)
-  const [mostrarBotonArriba, setMostrarBotonArriba] = useState(false)
 
   // ============================================================
   // CALCULAR TABLA DE POSICIONES
@@ -202,17 +201,6 @@ export default function TclasificacionPage() {
   }, [])
 
   // ============================================================
-  // SCROLL DETECTION
-  // ============================================================
-  useEffect(() => {
-    const handleScroll = () => {
-      setMostrarBotonArriba(window.scrollY > 300)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  // ============================================================
   // FUNCIONES UI
   // ============================================================
   const toggleGrupo = (grupo: string) => {
@@ -227,10 +215,6 @@ export default function TclasificacionPage() {
       month: 'long', 
       year: 'numeric' 
     })
-  }
-
-  const scrollArriba = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const rankingMostrar = mostrarTodos ? ranking : ranking.slice(0, 50)
@@ -250,7 +234,7 @@ export default function TclasificacionPage() {
     <div className="flex flex-col min-h-screen bg-slate-950 text-slate-50">
       {/* HEADER */}
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
-        <Link href="/" className="text-slate-400 hover:text-white transition-colors">
+        <Link href="/home" className="text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-lg font-bold text-white flex items-center gap-2">
@@ -286,9 +270,7 @@ export default function TclasificacionPage() {
             </button>
           </div>
 
-          {/* ============================================================
-              TAB: GRUPOS
-              ============================================================ */}
+          {/* TAB: GRUPOS */}
           {tab === 'grupos' && (
             <div className="text-center">
               <Button 
@@ -361,9 +343,7 @@ export default function TclasificacionPage() {
             </div>
           )}
 
-          {/* ============================================================
-              TAB: RANKING FIFA - VERSIÓN CORREGIDA
-              ============================================================ */}
+          {/* TAB: RANKING FIFA */}
           {tab === 'ranking' && (
             <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
               <div className="p-4 bg-slate-950/60 border-b border-slate-800">
@@ -383,18 +363,6 @@ export default function TclasificacionPage() {
                       <th className="p-3 text-left">Equipo</th>
                       <th className="p-3 text-center">Puntos</th>
                       <th className="p-3 text-center">Cambio</th>
-                      <th className="p-3 text-center" title="Goles por partido (FIFA)">
-                        <span className="flex items-center justify-center gap-1">
-                          GPP
-                          <Info className="h-3 w-3 text-slate-500" />
-                        </span>
-                      </th>
-                      <th className="p-3 text-center" title="Goles recibidos por partido (FIFA)">
-                        <span className="flex items-center justify-center gap-1">
-                          GRPP
-                          <Info className="h-3 w-3 text-slate-500" />
-                        </span>
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -413,17 +381,15 @@ export default function TclasificacionPage() {
                             {pais.cambio < 0 && <span className="text-red-400">↓{Math.abs(pais.cambio)}</span>}
                             {pais.cambio === 0 && <span className="text-slate-500">—</span>}
                           </td>
-                          <td className="p-3 text-center text-xs text-slate-400">—</td>
-                          <td className="p-3 text-center text-xs text-slate-400">—</td>
                         </tr>
                       )
                     })}
                   </tbody>
                 </table>
                 
-                {/* Botón "Ver más" - SIEMPRE visible si hay más de 10 equipos (para pruebas) */}
-                {ranking.length > 10 && (
-                  <div className="p-4 text-center border-t border-slate-800 bg-slate-900/50">
+                {/* Botón "Ver más" */}
+                {ranking.length > 50 && (
+                  <div className="p-4 text-center border-t border-slate-800">
                     <button
                       onClick={() => setMostrarTodos(!mostrarTodos)}
                       className="text-sky-400 hover:text-sky-300 text-sm font-medium transition-colors flex items-center justify-center gap-2 mx-auto"
@@ -451,17 +417,6 @@ export default function TclasificacionPage() {
       <footer className="py-6 text-center text-slate-500 text-xs border-t border-slate-800">
         <p>© 2026 Quiniela Mundialista — Datos oficiales actualizados según FIFA</p>
       </footer>
-
-      {/* BOTÓN FLOTANTE "VOLVER ARRIBA" CON LUCIDE REACT */}
-      {mostrarBotonArriba && (
-        <button
-          onClick={scrollArriba}
-          className="fixed bottom-6 right-6 z-50 bg-yellow-500 hover:bg-yellow-600 text-slate-950 p-3 rounded-full shadow-2xl transition-all hover:scale-110"
-          aria-label="Volver arriba"
-        >
-          <ArrowUp className="h-6 w-6" />
-        </button>
-      )}
     </div>
   )
 }

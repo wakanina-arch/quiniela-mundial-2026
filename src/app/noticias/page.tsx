@@ -98,7 +98,7 @@ export default function NoticiasPage() {
     <div className="min-h-screen bg-slate-950 text-slate-50">
       {/* Header */}
       <header className="px-4 lg:px-6 h-14 flex items-center justify-between border-b border-slate-800 bg-slate-900 sticky top-0 z-50">
-        <Link href="/" className="text-slate-400 hover:text-white transition-colors">
+        <Link href="/home" className="text-slate-400 hover:text-white transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-lg font-bold text-white flex items-center gap-2">

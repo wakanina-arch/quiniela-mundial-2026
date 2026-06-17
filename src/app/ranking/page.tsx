@@ -64,7 +64,7 @@ export default function RankingPage() {
     <div className="min-h-screen bg-slate-950">
       <header className="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-slate-300 hover:text-white flex items-center gap-2"><ArrowLeft className="h-5 w-5" /> Volver</Link>
+          <Link href="/home" className="text-slate-300 hover:text-white flex items-center gap-2"><ArrowLeft className="h-5 w-5" /> Volver</Link>
           <div className="flex items-center gap-2"><Users className="h-5 w-5 text-sky-400" /><span className="text-white font-bold">Ranking de Jugadores</span></div>
           <div className="w-5"></div>
         </div>

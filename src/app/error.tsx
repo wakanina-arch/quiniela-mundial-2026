@@ -24,7 +24,7 @@ export default function ErrorPage({
           <Button onClick={reset} className="bg-yellow-500 hover:bg-yellow-600 text-black">
             Intentar de nuevo
           </Button>
-          <Link href="/">
+          <Link href="/home">
             <Button className="bg-slate-700 hover:bg-slate-600 text-white">
               Volver al inicio
             </Button>
