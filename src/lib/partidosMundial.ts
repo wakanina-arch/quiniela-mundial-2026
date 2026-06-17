@@ -147,6 +147,17 @@ export const actualizarPartidosFinalizados = (partidos: PartidoReal[]): (Partido
   });
 };
 
+// Obtener fecha actual en formato YYYY-MM-DD (zona horaria America/New_York)
+export const getTodayEST = (): string => {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  return formatter.format(new Date());
+};
+
 export const obtenerPartidosActualizados = (): (PartidoReal & { autoMarcado?: boolean })[] => {
   return actualizarPartidosFinalizados(PARTIDOS_BASE);
 };

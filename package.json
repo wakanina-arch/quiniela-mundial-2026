@@ -2,7 +2,7 @@
   "name": "quiniela-mundialista-2026",
   "version": "0.1.0",
   "private": true,
-    "scripts": {
+  "scripts": {
     "dev": "next dev -p 3000",
     "build": "prisma generate && next build",
     "start": "next start",
@@ -12,6 +12,7 @@
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^7.8.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -23,8 +24,8 @@
     "swr": "^2.3.3",
     "tailwind-merge": "^2.5.5"
   },
-
   "devDependencies": {
+    "@types/cheerio": "^0.22.35",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
